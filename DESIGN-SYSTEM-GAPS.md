@@ -24,6 +24,7 @@ inventories 17 components.
 | **`DescriptionList`** | An aligned label/value grid. Document metadata, dossier attributes, permission-rule summary. Alignment is the point: the same field sits in the same place on every card, so a row of cards is comparable down the column instead of being re-parsed one by one. | **High** | **Yes** — also built independently in a second product |
 | **`ToggleGroup`** | A segmented control is one choice with a current value, so it is a radio group. Rendered as buttons it loses that. `Composer` already contains this logic internally, unexported. | Medium | — |
 | **`FileDropzone`** | No file input of any kind. The usual `<div onDrop>` is invisible to keyboard and screen reader users — see `UPL-1`. Needs a real `<input type="file">` underneath. | Medium | — |
+| **`PartialResult`** | `StateBlock` has three states — empty, loading, error — and a bulk operation has a fourth: partly done. 460 documents where 12 fail is not an error; it is 448 successes and 12 named failures, and it needs a surface that lists the failures individually with a reason each (`STA-14`–`STA-17`). Every product doing bulk work needs this and invents it. | **High** | — |
 | **`Avatar`** | No answer for identity. Small, but every product invents it and half of them read "ML" aloud to a screen reader. | Low | — |
 
 `Timeline` and `DescriptionList` were added after the

@@ -15,6 +15,9 @@ Design work in progress:
 - **[Second concept](https://claude.ai/code/artifact/ef77cea0-a9ad-49d9-b660-f8f4a2e4f1c0)** —
   one corpus with saved views as the navigation, and a dossier as a facet rather
   than a container.
+- **[States](https://claude.ai/code/artifact/f588ebcf-ef95-4928-8d4d-3ca97280f8c6)** —
+  empty, loading, partly done and refused, organised by state rather than by
+  screen.
 - **[Third concept](https://claude.ai/code/artifact/6e640d25-4cb2-4ad9-a1a5-6a3e9c9962fb)** —
   the merge, and the current candidate. Concept 1's spine with the inspector,
   addressable views and the export screen absorbed from concept 2. **Built on
@@ -26,7 +29,7 @@ Design work in progress:
 
 Three things live here:
 
-- **[requirements/](requirements/)** — 168 functional requirements for a
+- **[requirements/](requirements/)** — 198 functional requirements for a
   document management system.
 - **[Competition audit/](Competition%20audit/)** — what four established DMS
   products do about those requirements, and what that changed.
@@ -43,13 +46,14 @@ checked.
 | ---- | ------------ | ---- |
 | Dossier management — user | 20 | [dossier-management-user.md](requirements/dossier-management-user.md) |
 | Dossier management — admin | 24 | [dossier-management-admin.md](requirements/dossier-management-admin.md) |
-| Permissions and roles | 24 | [permissions-and-roles.md](requirements/permissions-and-roles.md) |
+| Permissions and roles | 28 | [permissions-and-roles.md](requirements/permissions-and-roles.md) |
 | Upload and versioning | 23 | [upload-and-versioning.md](requirements/upload-and-versioning.md) |
 | Bulk download | 16 | [bulk-download.md](requirements/bulk-download.md) |
 | Bulk operations | 13 | [bulk-operations.md](requirements/bulk-operations.md) |
 | Retention policies | 13 | [retention-policies.md](requirements/retention-policies.md) |
 | Filter | 15 | [filter.md](requirements/filter.md) |
 | Sort | 14 | [sort.md](requirements/sort.md) |
+| States | 26 | [states.md](requirements/states.md) |
 | Cross-cutting | 6 | [README.md](requirements/README.md) |
 
 They describe the target system. The prototype implements a slice —

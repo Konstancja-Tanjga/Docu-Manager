@@ -38,11 +38,64 @@ effect can only be learned by opening it will not be reviewed.
 Both directions must be expressible. Deny exists because some content has to be
 withheld from roles that a broader grant would otherwise reach.
 
-**`PRM-6` Deny outranks Grant, and the resolution order is stated in the interface, not only in documentation.**
-When a document is reachable by a grant rule and a deny rule at once, the
-outcome must be predictable without reading the source. Any other precedence is
-acceptable only if it is equally explicit — what is not acceptable is leaving it
-to be discovered.
+**`PRM-6` Deny wins. Decided.**
+When a document is matched by an enabled Deny rule and an enabled Grant rule at
+once, access is refused. There is no case in which a Grant overrides a Deny.
+
+The interface states this where the rules are managed, in these words or their
+translation: *"A Deny always wins. If any enabled Deny rule matches, access is
+refused — whatever a Grant says."* Documentation alone does not satisfy this.
+
+- **Why this and not the alternatives.** Grant-overrides is fail-open: one
+  over-broad Grant makes every Deny decorative, which is worse than having none,
+  because it looks like control. First-match-by-order turns rule order into
+  hidden state — at several hundred rules, "which matched first" stops being
+  answerable by looking, and reordering one rule changes access to documents
+  nobody was considering. Most-specific-predicate-wins fails because specificity
+  is not well-ordered: `department = HR` and `classification = Confidential` are
+  incomparable, so it needs a tiebreak and collapses into one of the others with
+  an extra layer nobody can predict.
+- **What it costs.** One broad Deny can quietly disable many Grants. That cost
+  is real and is paid down by `PRM-26` and `PRM-27`, which exist for this
+  reason.
+- Acceptance: the outcome of any rule set is the same whatever order the rules
+  are stored or displayed in.
+
+**`PRM-25` No rule means no access.**
+A document matched by no enabled rule is not readable by anyone except roles
+holding system administration. Absence of a rule is a refusal, never a
+permission.
+
+This is the more consequential half of `PRM-6`, because it governs most
+documents rather than the overlap. Without it the rule set is advisory: content
+would be reachable until someone remembered to forbid it, which is the opposite
+of the model.
+
+- Acceptance: a newly created document type with no rules referencing it is
+  invisible to every ordinary role until a Grant is written.
+
+**`PRM-26` For any document and any user, the product can name the rule that decided it.**
+Both directions: why this person can see it, and why they cannot. Because Deny
+wins and order is irrelevant, a refusal always has a single decisive rule, which
+makes a precise answer cheap to produce.
+
+Without this, `PRM-6` is correct and undiagnosable. "You do not have permission"
+tells a user nothing and tells an administrator less.
+
+- Acceptance: the answer names the rule, its type, and the part of its predicate
+  the document satisfied.
+
+**`PRM-27` Saving a Deny rule states what it takes away.**
+Beyond `PRM-12`'s match count: how many currently-permitted accesses the rule
+would revoke, broken down by role. A Deny is the only rule type that removes
+capability from a working system, so it is the only one whose blast radius has
+to be a number on screen before it is saved.
+
+**`PRM-28` Rules are never ordered, and the product offers no way to order them.**
+Order-independence is what keeps a set of several hundred rules reviewable, and
+it is a property that has to be defended: the first request after launch will be
+to move a rule up. The answer is to narrow a predicate or add a Deny, never to
+reorder.
 
 **`PRM-7` Operation scope is a set, drawn from a fixed vocabulary of operations.**
 At minimum: read, upload, and logical delete. The scope is a set because a role

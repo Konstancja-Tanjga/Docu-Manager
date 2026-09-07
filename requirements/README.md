@@ -11,13 +11,14 @@ what actually exists today.
 | ---- | ------------ | ---- |
 | Dossier management — user | 20 | [dossier-management-user.md](dossier-management-user.md) |
 | Dossier management — admin | 24 | [dossier-management-admin.md](dossier-management-admin.md) |
-| Permissions and roles | 24 | [permissions-and-roles.md](permissions-and-roles.md) |
+| Permissions and roles | 28 | [permissions-and-roles.md](permissions-and-roles.md) |
 | Upload and versioning | 23 | [upload-and-versioning.md](upload-and-versioning.md) |
 | Bulk download | 16 | [bulk-download.md](bulk-download.md) |
 | Bulk operations | 13 | [bulk-operations.md](bulk-operations.md) |
 | Retention policies | 13 | [retention-policies.md](retention-policies.md) |
 | Filter | 15 | [filter.md](filter.md) |
 | Sort | 14 | [sort.md](sort.md) |
+| States | 26 | [states.md](states.md) |
 | Cross-cutting | 6 | this file |
 
 ## How to read a requirement
@@ -37,6 +38,7 @@ and is marked withdrawn.
 | `RET` | Retention policies |
 | `FLT` | Filter |
 | `SRT` | Sort |
+| `STA` | States — empty, loading, error, partial, refused, overfull |
 | `XC` | Cross-cutting |
 
 **Must / should / may** carry their RFC 2119 meanings. "Must" is a release gate.
@@ -95,4 +97,5 @@ describe considerably more than it does.
 | Bulk download | Not implemented. |
 | Bulk operations | Not implemented. No selection model exists. |
 | Permissions and roles | Not implemented. The prototype has one user and no access control. |
+| States | Partial — both empty states and the oversized-file error exist. No loading, no partial-result, no refusal states. |
 | Retention policies | Not implemented. |

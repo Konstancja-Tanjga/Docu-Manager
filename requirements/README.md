@@ -12,7 +12,7 @@ what actually exists today.
 | Dossier management — user | 20 | [dossier-management-user.md](dossier-management-user.md) |
 | Dossier management — admin | 24 | [dossier-management-admin.md](dossier-management-admin.md) |
 | Permissions and roles | 28 | [permissions-and-roles.md](permissions-and-roles.md) |
-| Upload and versioning | 23 | [upload-and-versioning.md](upload-and-versioning.md) |
+| Upload and versioning | 24 | [upload-and-versioning.md](upload-and-versioning.md) |
 | Bulk download | 16 | [bulk-download.md](bulk-download.md) |
 | Bulk operations | 13 | [bulk-operations.md](bulk-operations.md) |
 | Retention policies | 13 | [retention-policies.md](retention-policies.md) |

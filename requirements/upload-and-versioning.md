@@ -40,10 +40,51 @@ audit entry is written. It is never silently deleted.
 Used for duplicate detection, integrity verification, and inclusion in export
 manifests.
 
-**`UPL-8` An upload matching an existing document by checksum offers to version it.**
-The user chooses: a new version of the existing document, or a genuinely
-separate document. Neither is assumed. Silently creating a duplicate and
-silently versioning are both wrong.
+**`UPL-8` An upload matching an existing document by checksum asks what to do, and never assumes.**
+Silently creating a duplicate and silently versioning are both wrong. Before it
+asks, the dialog states what it matched: which document, which version, whose,
+when, and that version's own comment — the question is unanswerable without
+them.
+
+**A checksum match has three cases, and the options differ in each.**
+
+- **It matches the document's current version.** Versioning is **refused**, not
+  offered: it would produce a version differing from its predecessor in nothing
+  but its number, which `UPL-18` rejects. The refusal is shown with its reason
+  rather than the option being silently absent — the user needs to know the
+  product understood what they asked for. Discarding becomes the primary action,
+  because the content is already stored. Filing as a separate document stays
+  available.
+- **It matches an earlier version.** This is a restore, so `UPL-12` governs it:
+  the new version carries the old content forward and the intervening versions
+  stay. A comment saying why is required. Filing as a separate document stays
+  available.
+- **It matches a document the user is not entitled to see.** No document is
+  named, no version path is offered, and nothing hints that a match occurred —
+  see `UPL-24`.
+
+Neither remaining option may be preselected, and the confirming action stays
+disabled until one is chosen. A default here is the failure mode itself: the
+person presses the primary button without reading, and either the repository
+gains a duplicate or a document quietly gains a version of something else.
+
+**`UPL-24` Duplicate detection never discloses a document the user may not see.**
+Checksum matching is a convenience with a security surface. A naive
+implementation tells the uploader that identical content exists, what it is
+called, which dossier it is in and who filed it — past whatever rule forbids
+them from seeing it, and with no read of the document ever taking place.
+
+Where the matched document is outside the user's permissions, the product
+behaves as though no match was found, except that it may still decline to store
+the bytes twice. It must not name the document, reveal its location or author,
+offer a version path, or vary its wording in a way that distinguishes "no match"
+from "a match you cannot see".
+
+- Acceptance: for the same uploaded file, a user with permission and a user
+  without see two dialogs that cannot be told apart as evidence of the
+  document's existence.
+- This is invisible on the happy path, which is why it is stated rather than
+  left to an implementer.
 
 ## Versioning
 

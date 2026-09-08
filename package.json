@@ -11,7 +11,7 @@
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@bighat/ui": "github:Konstancja-Tanjga/bighat-design-system#chip-textarea-filedropzone",
+    "@bighat/ui": "git+https://github.com/Konstancja-Tanjga/bighat-design-system.git#chip-textarea-filedropzone",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

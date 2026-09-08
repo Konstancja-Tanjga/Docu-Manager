@@ -8,7 +8,7 @@
       "name": "docu-manager",
       "version": "1.0.0",
       "dependencies": {
-        "@bighat/ui": "git+https://github.com/Konstancja-Tanjga/bighat-design-system.git#chip-textarea-filedropzone",
+        "@bighat/ui": "github:Konstancja-Tanjga/bighat-design-system#chip-textarea-filedropzone",
         "react": "^19.2.8",
         "react-dom": "^19.2.8"
       },
@@ -22,7 +22,7 @@
     },
     "node_modules/@bighat/ui": {
       "version": "4.1.0",
-      "resolved": "git+https://github.com/Konstancja-Tanjga/bighat-design-system.git#a3b26720cee2edbeb569bf5c632bf9b3558db0eb",
+      "resolved": "git+ssh://git@github.com/Konstancja-Tanjga/bighat-design-system.git#a3b26720cee2edbeb569bf5c632bf9b3558db0eb",
       "license": "MIT",
       "peerDependencies": {
         "react": "^18.0.0 || ^19.0.0",

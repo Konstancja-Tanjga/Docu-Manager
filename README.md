@@ -243,3 +243,25 @@ else happens to be running.
 Prototype. Not production software. The document management is a plausible
 fiction; the design system integration and the requirements are the real
 content.
+
+## Deploying
+
+Vercel, as a Vite single-page app. The repository carries a
+[`vercel.json`](vercel.json) with the framework, the output directory and one
+rewrite: every path serves `index.html`, because navigation here is React state
+rather than routes, so a refresh on any address has to land on the app rather
+than a 404.
+
+One thing worth knowing before importing it: the design system is a **git
+dependency**, and npm writes git URLs into the lockfile as `git+ssh://` even
+when `package.json` asks for https. A build host has no SSH key for GitHub, so
+`npm ci` fails there with a permission error that looks like a private-repo
+problem and is not one. The lockfile in this repository is pinned over
+`git+https://` for that reason, and it is verified rather than assumed:
+
+```bash
+GIT_SSH_COMMAND=/bin/false npm ci   # succeeds only if nothing needs SSH
+```
+
+Keep that in mind after any `npm install` that re-resolves the dependency —
+npm will normalise it back to ssh, and the next deploy will fail.

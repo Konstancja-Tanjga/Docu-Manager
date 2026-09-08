@@ -2,6 +2,8 @@
 
 **DocuManager · user journey and service blueprint**
 
+*Also published as a styled page: [The Line of Visibility](https://claude.ai/code/artifact/a41c61f5-6791-4143-bb76-dea9c72946c7) — the swimlane as a wide sheet rather than a table. The source is [`artifacts/service-blueprint.html`](artifacts/service-blueprint.html).*
+
 A journey says *what* happens. A blueprint says **what has to work underneath**
 for it to happen — and where the boundary sits between what the person filing a
 document can see and what the system does out of sight.

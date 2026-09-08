@@ -15,6 +15,12 @@ not. **[user-journey.md](user-journey.md)** is the journey and service
 blueprint: six phases, the line of interaction, the line of visibility, and each
 risk paired with the decision that answers it.
 
+Both are also published as styled pages —
+[Thirteen Chapters](https://claude.ai/code/artifact/6f51504b-cc53-4577-bcc2-d9972cc2e468)
+and [The Line of Visibility](https://claude.ai/code/artifact/a41c61f5-6791-4143-bb76-dea9c72946c7)
+— with their sources committed in [`artifacts/`](artifacts/). The Markdown is
+what GitHub renders; the HTML is what reads like the rest of the portfolio.
+
 ---
 
 ## 1 · Research — what four established systems actually do

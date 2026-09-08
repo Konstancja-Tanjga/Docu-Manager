@@ -2,6 +2,8 @@
 
 **DocuManager · use case · skeleton**
 
+*Also published as a styled page: [Thirteen Chapters](https://claude.ai/code/artifact/6f51504b-cc53-4577-bcc2-d9972cc2e468) — the same content, in the visual language the format came from. The source is [`artifacts/use-case.html`](artifacts/use-case.html).*
+
 A document management prototype whose real subject is not document management:
 it is what a screen looks like when **every control has to come from a design
 system**, and what happens at the places where the system runs out.

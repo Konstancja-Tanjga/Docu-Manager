@@ -22,7 +22,7 @@ import type { DocumentStatus, DocumentType, ManagedDocument } from './documents'
  * this product has both and because a role that may read and file but not
  * approve is the ordinary case, not the exception.
  */
-export const OPERATIONS = ['read', 'edit', 'approve', 'upload', 'delete'] as const;
+export const OPERATIONS = ['read', 'edit', 'approve', 'upload', 'download', 'delete'] as const;
 export type Operation = (typeof OPERATIONS)[number];
 
 export const OPERATION_LABELS: Record<Operation, string> = {
@@ -30,6 +30,10 @@ export const OPERATION_LABELS: Record<Operation, string> = {
   edit: 'Edit metadata',
   approve: 'Approve or reject',
   upload: 'Upload',
+  // BDL-5: download permission is distinct from view permission. Being allowed
+  // to read a document on screen is not being allowed to take a copy of it
+  // away, and a system that conflates the two cannot express an audit guest.
+  download: 'Download',
   delete: 'Delete (logical)',
 };
 
@@ -182,6 +186,19 @@ export const PERMISSION_RULES: PermissionRule[] = [
     roles: ['finance'],
     predicate: [{ field: 'type', equals: 'Invoice' }],
     modifiedAt: '2026-05-19',
+    modifiedBy: 'A. Lindqvist',
+  },
+  {
+    id: 'PR-008',
+    name: 'Staff may download what they can read',
+    description:
+      'Download is a separate operation from read, so it is granted separately — guests are not on this rule.',
+    enabled: true,
+    type: 'Grant',
+    operations: ['download'],
+    roles: ['controller', 'quality', 'finance'],
+    predicate: [],
+    modifiedAt: '2026-06-01',
     modifiedBy: 'A. Lindqvist',
   },
   {

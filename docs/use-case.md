@@ -9,8 +9,8 @@ system**, and what happens at the places where the system runs out.
 | | |
 | --- | --- |
 | **Role** | Designer and developer |
-| **Scope** | 168 requirements, 5 screens, 1 design system |
-| **Chapters done** | 8 of 13 |
+| **Scope** | 168 requirements, 7 screens, 1 design system |
+| **Chapters done** | 9 of 13 |
 | **Status** | Prototype. Design system round trip closed |
 
 ## How to read this
@@ -164,15 +164,15 @@ about why design happens before implementation rather than after it.
 
 ---
 
-### 11 · Screens that do not exist `to write`
+### 11 · Retention, and taking documents away `done`
 
 | | |
 | --- | --- |
-| **What it is** | Permission rules, retention policies and bulk operations — designed as reference screens in the audit, built nowhere. |
-| **Why it exists** | 110 of the 168 requirements live in areas with no implementation at all. Drawing three of them was how the audit's findings got tested against a real layout. |
-| **What to look at** | That access is decided by metadata and not by folder, that a retention policy is an object with a lifecycle rather than a number typed into a document type, and that *select all filtered results* is a separate action from *select all on this page*. |
+| **What it is** | Retention as a versioned policy with a lifecycle, a disposition review queue, and a selection model with bulk tagging and export. |
+| **Why it exists** | These three were the reference screens in the audit and were built nowhere. They were the largest remaining hole: 42 requirements across three areas. |
+| **What to look at** | That **retiring a policy releases nothing** — the retired one still reports what it governs. That a legal hold suspends expiry *without moving the computed date*, so the document says "would expire". That expiry is a queue and never a deletion. And in the bulk bar: the export states its count and size **before** the request, and names every document it will leave out and why. |
 
-→ [`design/competition-audit-artboards/`](design/competition-audit-artboards/) · `docs/case-study/11-unbuilt.png`
+→ [`screens/retention-policies.png`](screens/retention-policies.png) · [`bulk-selection.png`](screens/bulk-selection.png) · [`bulk-per-item-results.png`](screens/bulk-per-item-results.png)
 
 ---
 

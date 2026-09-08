@@ -18,6 +18,7 @@ import { UploadDialog } from './features/UploadDialog';
 import { Dashboard } from './pages/Dashboard';
 import { Documents } from './pages/Documents';
 import { Permissions } from './pages/Permissions';
+import { Retention } from './pages/Retention';
 import { ROLES, operationsForRole, roleById } from './data/permissions';
 import {
   CURRENT_USER,
@@ -29,12 +30,13 @@ import {
   type ManagedDocument,
 } from './data/documents';
 
-type Page = 'dashboard' | 'documents' | 'permissions';
+type Page = 'dashboard' | 'documents' | 'permissions' | 'retention';
 
 const PAGES: { id: Page; label: string; screen: string }[] = [
   { id: 'dashboard', label: 'Dashboard', screen: 'Dashboard' },
   { id: 'documents', label: 'Documents', screen: 'Document library' },
   { id: 'permissions', label: 'Permissions', screen: 'Permissions' },
+  { id: 'retention', label: 'Retention', screen: 'Retention' },
 ];
 
 export function App() {
@@ -250,7 +252,9 @@ export function App() {
           </SidePanel>
         }
       >
-        {page === 'permissions' ? (
+        {page === 'retention' ? (
+          <Retention documents={documents} currentRole={role} onOpenDocument={setOpenDocId} />
+        ) : page === 'permissions' ? (
           <Permissions currentRole={role} />
         ) : page === 'dashboard' ? (
           <Dashboard
@@ -266,6 +270,7 @@ export function App() {
             onOpenDocument={setOpenDocId}
             onUpload={() => setUpload('new')}
             currentRole={role}
+            onChangeDocument={updateDoc}
           />
         )}
       </AppShell>

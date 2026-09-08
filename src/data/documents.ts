@@ -7,6 +7,14 @@
  * no backend behind it.
  */
 
+/*
+ * `retention.ts` imports from this file with `import type` only, so the type
+ * import is erased and this is not a runtime cycle. The retention state is
+ * computed rather than stored, which is why filtering and sorting by it has to
+ * reach the computation.
+ */
+import { RETENTION_STATES, retentionOf } from './retention';
+
 export type DocumentStatus = 'Approved' | 'Pending' | 'Rejected';
 /** The single source of the type list — the upload and the edit form share it. */
 export const DOCUMENT_TYPES = ['Invoice', 'Production Order'] as const;
@@ -39,6 +47,12 @@ export type ManagedDocument = {
   status: DocumentStatus;
   department: Department;
   classification: Classification;
+  /**
+   * RET-13: a legal hold suspends expiry without altering the policy or the
+   * computed date. It is a property of the document, not of the policy, which
+   * is why it lives here and not in retention.ts.
+   */
+  legalHold?: boolean;
   uploadDate: string;
   uploadedBy: string;
   fileSize: string;
@@ -103,6 +117,7 @@ const SEED: ManagedDocument[] = [
     status: 'Approved',
     department: 'Finance',
     classification: 'Internal',
+    legalHold: true,
     uploadDate: '2025-01-15',
     uploadedBy: 'Maria López',
     fileSize: '3.8',
@@ -373,12 +388,16 @@ export type Filters = {
   search: string;
   type: '' | DocumentType;
   activeTags: string[];
+  /** RET-11: retention state filters like any other attribute. */
+  retention: string;
 };
 
-export const NO_FILTERS: Filters = { search: '', type: '', activeTags: [] };
+export const NO_FILTERS: Filters = { search: '', type: '', activeTags: [], retention: '' };
 
 export function filtersAreActive(filters: Filters): boolean {
-  return Boolean(filters.search || filters.type || filters.activeTags.length);
+  return Boolean(
+    filters.search || filters.type || filters.activeTags.length || filters.retention,
+  );
 }
 
 export function applyFilters(documents: ManagedDocument[], filters: Filters): ManagedDocument[] {
@@ -390,6 +409,12 @@ export function applyFilters(documents: ManagedDocument[], filters: Filters): Ma
       doc.description.toLowerCase().includes(needle);
     const matchesType = !filters.type || doc.type === filters.type;
     /*
+     * RET-11: the retention state is computed, not stored, so it filters on the
+     * computed value. Filtering on a column that does not exist is how this
+     * clause failed silently the first time it was written.
+     */
+    const matchesRetention = !filters.retention || retentionOf(doc).state === filters.retention;
+    /*
      * FLT-2: values inside one facet combine with OR, facets with AND. Tags are
      * one facet, so `some`, not `every` — with `every`, picking two tags asked
      * for documents carrying both and almost always returned nothing.
@@ -397,7 +422,7 @@ export function applyFilters(documents: ManagedDocument[], filters: Filters): Ma
     const matchesTags =
       filters.activeTags.length === 0 ||
       filters.activeTags.some((tag) => doc.tags.includes(tag));
-    return matchesSearch && matchesType && matchesTags;
+    return matchesSearch && matchesType && matchesTags && matchesRetention;
   });
 }
 
@@ -486,7 +511,16 @@ export function formatCount(value: number): string {
 
 /* ── Sorting (SRT-6, SRT-7, SRT-8, SRT-9, SRT-10) ────────────────────────── */
 
-export const SORT_KEYS = ['title', 'type', 'status', 'uploadDate', 'fileSize'] as const;
+export const SORT_KEYS = [
+  'title',
+  'type',
+  'status',
+  'uploadDate',
+  'fileSize',
+  // RET-11: sortable like any other attribute, and it sorts by the computed
+  // state rather than by a stored string, because there is no stored string.
+  'retention',
+] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 export type SortDirection = 'ascending' | 'descending';
 
@@ -539,6 +573,15 @@ function sortValue(doc: ManagedDocument, key: SortKey): string | number | null {
     }
     case 'status': {
       const rank = STATUS_RANK.indexOf(doc.status);
+      return rank === -1 ? null : rank;
+    }
+    case 'retention': {
+      /*
+       * RET-11. Ordered by how much attention the state needs, for the reason
+       * SRT-3 gives about status: the alphabetical order of a retention state
+       * is meaningless. `RETENTION_STATES` puts "Due for review" first.
+       */
+      const rank = RETENTION_STATES.indexOf(retentionOf(doc).state);
       return rank === -1 ? null : rank;
     }
     case 'title':

@@ -84,7 +84,7 @@ These apply to every area and are not repeated in the individual files.
 ## Status in this prototype
 
 Honest accounting, recounted against the code rather than remembered. Of 168
-requirements: **39 met, 7 partial, 122 not implemented.**
+requirements: **69 met, 10 partial, 89 not implemented.**
 
 | Area | Met | Partial | Not | State |
 | ---- | --- | ------- | --- | ----- |
@@ -95,9 +95,9 @@ requirements: **39 met, 7 partial, 122 not implemented.**
 | Dossier management — user (20) | 0 | 0 | 20 | No dossier concept in the data model. |
 | Dossier management — admin (24) | 0 | 0 | 24 | No dossier types, no file plan. |
 | Permissions and roles (24) | 12 | 0 | 12 | Rule-based and driven by metadata: grants and denies over predicates, deny outranks grant, roles read-only from the directory. Approve, edit and upload are all resolved against the rules. No rule editor, no logical delete, no metadata-field administration. |
-| Bulk download (16) | 0 | 0 | 16 | — |
-| Bulk operations (13) | 0 | 0 | 13 | No selection model. |
-| Retention policies (13) | 0 | 0 | 13 | — |
+| Bulk download (16) | 9 | 1 | 6 | The design half: what the manifest says, which documents are excluded and why, and filenames that stay safe. There is no archive writer and no server, so no file content, no dossier structure and no asynchronous job. |
+| Bulk operations (13) | 11 | 1 | 1 | Selection, a bar that appears only when there is one, bulk tagging validated per document, and results reported per item in two places. No bulk delete, because nothing deletes. |
+| Retention policies (13) | 10 | 1 | 2 | A policy is a versioned object with a lifecycle. Retiring one releases nothing, a legal hold suspends expiry without moving the date, and expiry is a review queue rather than a deletion. No policy editor. |
 
 ### What the prototype deliberately cannot reach
 
@@ -204,6 +204,70 @@ states how many documents were withheld and points at the screen that says
 which rule decided. It is deliberately a note above the list rather than an
 empty state — the list is not empty, and a reader whose result set silently
 shrank concludes the document is gone.
+
+**Retention — 10 met, 1 partial, 2 not**
+
+| Met | Partial | Not |
+| --- | ------- | --- |
+| `RET-1` `RET-2` `RET-3` `RET-4` `RET-5` `RET-7` `RET-10` `RET-11` `RET-12` `RET-13` | `RET-8` | `RET-6` `RET-9` |
+
+`RET-8` is partial for a reason worth stating: policies are versioned, but a
+document does not *record* the version governing it — the prototype derives it
+from the policy in force when the document arrived. A real product stores the
+assignment, because deriving it means a change to history changes the answer.
+The derivation is commented as the compromise it is.
+
+`RET-6` and `RET-9` both need an editor: the constraint that an active policy
+cannot have its period shortened, and the report of how many documents a change
+would affect. There is no editor, so neither is built.
+
+The three that are easiest to fake and are not faked: **retiring a policy
+releases nothing** — the retired policy still shows a count of what it governs;
+**a legal hold suspends expiry without altering the computed date**, so the
+document says "would expire" and keeps the date; and **expiry is a queue**, so
+a document whose period elapsed appears for review and is otherwise untouched.
+
+**Bulk operations — 11 met, 1 partial, 1 not**
+
+| Met | Partial | Not |
+| --- | ------- | --- |
+| `BLK-1` `BLK-3` `BLK-4` `BLK-5` `BLK-6` `BLK-8` `BLK-9` `BLK-10` `BLK-11` `BLK-12` `BLK-13` | `BLK-2` | `BLK-7` |
+
+`BLK-2` wants selecting the loaded page and selecting the whole filtered result
+to be two distinct actions. Both exist, but there is no paging in this
+prototype, so the two sets coincide and the distinction cannot be observed —
+which is the thing `BLK-2` is actually about. Implemented, unobservable, so:
+partial.
+
+`BLK-7` is bulk logical delete, and nothing in this product deletes anything
+(see `PRM-18`). A confirm dialog over an operation that does not exist would be
+theatre.
+
+`BLK-12` is the one worth clicking. Add the same tag twice: the second attempt
+reports **per document** why each one did not change, not "3 of 8 failed".
+
+**Bulk download — 9 met, 1 partial, 6 not**
+
+| Met | Partial | Not |
+| --- | ------- | --- |
+| `BDL-2` `BDL-3` `BDL-4` `BDL-5` `BDL-7` `BDL-8` `BDL-9` `BDL-15` `BDL-16` | `BDL-1` | `BDL-6` `BDL-10` `BDL-11` `BDL-12` `BDL-13` `BDL-14` |
+
+What is met is the half that is a design problem: what the manifest has to say,
+which documents are left out and why, and how a filename stays deterministic,
+collision-free and safe. Two documents in the seed data share a title, so the
+id carries the uniqueness rather than the title — that is `BDL-7` earning its
+place rather than being asserted.
+
+`BDL-5` is the requirement this needed the permission model for: **download is
+a distinct operation from read.** Being allowed to see a document on screen is
+not being allowed to take a copy away, and the auditor role holds read without
+download.
+
+What is not met needs a backend. `BDL-6` mirrors a dossier structure that does
+not exist here; `BDL-10` through `BDL-14` are an asynchronous job with progress,
+cancellation, notification and an expiring link. There is no archive writer
+either, so what downloads is the metadata and the manifest — not the files.
+That limit is in the export module's own doc comment, not only here.
 
 ### Corrected here, having been wrong rather than absent
 

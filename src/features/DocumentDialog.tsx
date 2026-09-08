@@ -18,6 +18,7 @@ import {
 } from '@bighat/ui';
 
 import { can, denyingRule, roleById } from '../data/permissions';
+import { RetentionSummary } from '../pages/Retention';
 import {
   DOCUMENT_TYPES,
   MAX_TAGS,
@@ -195,6 +196,13 @@ export function DocumentDialog({
                     },
                   ]}
                 />
+
+                {/*
+                  RET-10: a document under retention says so in place, with the
+                  date and the policy — not on a separate screen a reader has
+                  to know exists.
+                */}
+                <RetentionSummary doc={doc} />
 
                 <div className="dm-row">
                   <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>

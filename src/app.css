@@ -248,6 +248,68 @@
   }
 }
 
+/* ── Bulk actions ─────────────────────────────────────────────────── */
+
+/*
+ * BLK-6: the bar exists only while a selection does, so it never occupies the
+ * layout when it has nothing to say.
+ */
+.dm-bulk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bh-gap-normal);
+  padding: var(--bh-padding-block);
+  background: var(--bh-selection-bg);
+  border: 1px solid var(--bh-selection-mark);
+  border-radius: var(--bh-radius-surface);
+}
+
+/* BLK-3: the count is the first thing in the bar, because it is the thing a
+   reader checks before acting on a set they cannot see all of. */
+.dm-bulk__count {
+  margin: 0;
+  align-self: end;
+  padding-bottom: var(--bh-gap-snug);
+  color: var(--bh-selection-fg);
+  font-size: var(--bh-text-size-caption);
+  white-space: nowrap;
+}
+
+.dm-bulk__field {
+  min-width: 260px;
+}
+
+/* BLK-12's list: one document per line, the name carrying the identification
+   and the reason following it. Left-aligned, because a centred list of
+   refusals is a paragraph pretending to be data. */
+.dm-failures {
+  margin: 0;
+  padding-left: var(--bh-padding-inline);
+  text-align: start;
+  color: var(--bh-text-secondary);
+  font-size: var(--bh-text-size-body);
+  line-height: var(--bh-text-leading-normal);
+}
+
+.dm-failures__name {
+  color: var(--bh-text-primary);
+  font-weight: var(--bh-text-weight-emphasis);
+}
+
+/* A table cell that opens a document, matching the ghost button beside it
+   without nesting a system Button inside a cell that already has one. */
+.dm-link-button {
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--bh-text-link);
+  font-family: inherit;
+  font-size: var(--bh-text-size-body);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ── Notes in the interface ───────────────────────────────────────── */
 
 /*

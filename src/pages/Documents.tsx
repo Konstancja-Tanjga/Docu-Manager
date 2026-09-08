@@ -12,7 +12,9 @@ import {
   type Column,
 } from '@bighat/ui';
 
+import { BulkBar } from '../features/BulkBar';
 import { partitionByRead, roleById } from '../data/permissions';
+import { RETENTION_STATES, retentionOf } from '../data/retention';
 import {
   DEFAULT_SORT,
   NO_FILTERS,
@@ -57,6 +59,12 @@ const SORT_LABELS: Record<SortKey, { ascending: string; descending: string }> = 
   // alphabetical order of a status meaningless, and it is right.
   status: { ascending: 'Status — needs attention first', descending: 'Status — settled first' },
   fileSize: { descending: 'Size — largest first', ascending: 'Size — smallest first' },
+  // Not alphabetical, for the same reason as status: "Due for review" is the
+  // state that needs a person, so it leads.
+  retention: {
+    ascending: 'Retention — needs review first',
+    descending: 'Retention — settled first',
+  },
 };
 
 const SORT_OPTIONS = SORT_KEYS.flatMap((key) =>
@@ -79,6 +87,7 @@ export function Documents({
   onOpenDocument,
   onUpload,
   currentRole,
+  onChangeDocument,
 }: {
   documents: ManagedDocument[];
   filters: Filters;
@@ -86,8 +95,23 @@ export function Documents({
   onOpenDocument: (id: string) => void;
   onUpload: () => void;
   currentRole: string;
+  onChangeDocument: (id: string, change: (doc: ManagedDocument) => ManagedDocument) => void;
 }) {
   const [view, setView] = useState('grid');
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  /*
+   * BLK-4: a selection survives paging within the same filter and is discarded
+   * when the filter changes. There is no paging here, so the half that can be
+   * honoured is the discard — a selection that outlived its filter would let a
+   * bulk action reach documents the reader can no longer see.
+   */
+  const filterKey = `${filters.search}|${filters.type}|${filters.retention}|${filters.activeTags.join(',')}`;
+  const [lastFilterKey, setLastFilterKey] = useState(filterKey);
+  if (filterKey !== lastFilterKey) {
+    setLastFilterKey(filterKey);
+    if (selected.size > 0) setSelected(new Set());
+  }
   // SRT-5: the default is deliberate — the newest upload is what a reader
   // coming to a document library is looking for.
   const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
@@ -127,6 +151,21 @@ export function Documents({
       align: 'end',
       width: '100px',
       cell: (doc) => formatSize(doc.fileSize),
+    },
+    {
+      key: 'retention',
+      header: 'Retention',
+      sortable: true,
+      width: '150px',
+      cell: (doc) => {
+        const { state, expiresOn } = retentionOf(doc);
+        return (
+          <span className="dm-rule">
+            <span>{state}</span>
+            {expiresOn && <span className="dm-rule__note">{formatDate(expiresOn)}</span>}
+          </span>
+        );
+      },
     },
     {
       key: 'uploadDate',
@@ -220,16 +259,39 @@ export function Documents({
             `Select` has no `hideLabel` — only `Input` does. So the label is
             visible here, which is the better default anyway.
           */}
+          {/*
+            FLT-6 wants every active filter individually removable, and the
+            design system's `placeholder` cannot do that: it renders
+            `<option value="" disabled>`, which is correct for a required field
+            and wrong for a filter — "any" is a legitimate choice, not the
+            absence of one. So the empty value is a real option instead.
+          */}
           <Select
             label="Type"
-            placeholder="All types"
             value={filters.type}
             options={[
+              { value: '', label: 'All types' },
               { value: 'Invoice', label: 'Invoice' },
               { value: 'Production Order', label: 'Production Order' },
             ]}
             onChange={(event) =>
               onFiltersChange({ ...filters, type: event.target.value as Filters['type'] })
+            }
+          />
+
+          {/*
+            RET-11: retention state filters like any other attribute. The
+            values are the computed states, not a stored column.
+          */}
+          <Select
+            label="Retention"
+            value={filters.retention}
+            options={[
+              { value: '', label: 'Any state' },
+              ...RETENTION_STATES.map((state) => ({ value: state, label: state })),
+            ]}
+            onChange={(event) =>
+              onFiltersChange({ ...filters, retention: event.target.value })
             }
           />
 
@@ -317,6 +379,37 @@ export function Documents({
         </div>
       )}
 
+      {view === 'list' && (
+        <>
+          {/*
+            BLK-2 and BDL-3: selecting the whole filtered result is a distinct
+            second action from the master checkbox, and it says which it did.
+            With no paging the two coincide, so this is honest about being the
+            same set rather than pretending to be a second scope.
+          */}
+          {filtered.length > 0 && selected.size !== filtered.length && (
+            <div className="dm-row">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => setSelected(new Set(filtered.map((doc) => doc.id)))}
+              >
+                Select all {formatCount(filtered.length)} filtered results
+              </Button>
+            </div>
+          )}
+
+          <BulkBar
+            selected={selected}
+            total={filtered.length}
+            documents={filtered}
+            currentRole={currentRole}
+            onChange={onChangeDocument}
+            onClear={() => setSelected(new Set())}
+          />
+        </>
+      )}
+
       {view === 'list' ? (
         <Table
           caption="Documents"
@@ -324,6 +417,16 @@ export function Documents({
           columns={columns}
           rows={filtered}
           rowKey={(doc) => doc.id}
+          /*
+            BLK-1: the checkbox column and the tri-state select-all in the
+            header are the design system's, not hand-rolled. The master
+            checkbox selects what is loaded.
+          */
+          selection={{
+            selected,
+            onChange: setSelected,
+            label: 'Select documents for a bulk action',
+          }}
           sort={sort}
           onSortChange={(next) => {
             if (!isSortKey(next.key)) return;

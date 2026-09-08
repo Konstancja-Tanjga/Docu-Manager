@@ -8,8 +8,19 @@ The point of this repository is not the document management. It is what a real
 screen looks like when every control comes from a design system, and what
 happens at the places where the system runs out.
 
-Three things live here:
+**New here? Start with [the use case](docs/use-case.md).** Thirteen chapters in
+the order the project was built — what the market already does, what that made
+us write down, the flow drawn before it was built, and the design-system round
+trip. Each chapter says what it is, why it exists, and what to look at.
 
+From there: [the user journey and service blueprint](docs/user-journey.md) for
+how a document actually moves through this, and [docs/](docs/) for the process
+walkthrough with the design canvases and screenshots.
+
+Four things live here:
+
+- **[docs/](docs/)** — the process: research, concept, the design canvases, and
+  screenshots of the result.
 - **[requirements/](requirements/)** — 168 functional requirements for a
   document management system.
 - **[Competition audit/](Competition%20audit/)** — what four established DMS

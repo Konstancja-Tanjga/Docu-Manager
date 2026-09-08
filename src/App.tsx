@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppBar,
   AppShell,
   Avatar,
   Button,
   Input,
+  Select,
   NavItem,
   NavList,
   SidePanel,
@@ -16,28 +17,45 @@ import { DocumentDialog } from './features/DocumentDialog';
 import { UploadDialog } from './features/UploadDialog';
 import { Dashboard } from './pages/Dashboard';
 import { Documents } from './pages/Documents';
+import { Permissions } from './pages/Permissions';
+import { Retention } from './pages/Retention';
+import { ROLES, operationsForRole, roleById } from './data/permissions';
 import {
   CURRENT_USER,
   NO_FILTERS,
   loadDocuments,
   saveDocuments,
-  stamp,
+  auditEntry,
   type Filters,
   type ManagedDocument,
 } from './data/documents';
 
-type Page = 'dashboard' | 'documents';
+type Page = 'dashboard' | 'documents' | 'permissions' | 'retention';
 
 const PAGES: { id: Page; label: string; screen: string }[] = [
   { id: 'dashboard', label: 'Dashboard', screen: 'Dashboard' },
   { id: 'documents', label: 'Documents', screen: 'Document library' },
+  { id: 'permissions', label: 'Permissions', screen: 'Permissions' },
+  { id: 'retention', label: 'Retention', screen: 'Retention' },
 ];
 
 export function App() {
   const { notify } = useToast();
 
-  const [documents, setDocuments] = useState<ManagedDocument[]>(() => loadDocuments());
+  // Read once. `reseeded` says the stored library was unreadable and has been
+  // replaced by the sample data — which is indistinguishable from a first visit
+  // unless somebody says so.
+  const [stored] = useState(() => loadDocuments());
+  const [documents, setDocuments] = useState<ManagedDocument[]>(stored.documents);
   const [page, setPage] = useState<Page>('dashboard');
+  /*
+   * PRM-1 says roles come from the identity provider and are read-only here,
+   * so a prototype has no legitimate way to *change* one. This switcher is
+   * openly a stand-in for signing in as somebody else: it is the only way to
+   * see a rule-based permission model do anything, and the permissions screen
+   * marks which role you are acting as.
+   */
+  const [role, setRole] = useState('controller');
   /** Below 900px the shell's panels leave the grid; this is how they come back. */
   const [navOpen, setNavOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
@@ -51,7 +69,36 @@ export function App() {
    */
   const [upload, setUpload] = useState<'new' | string | null>(null);
 
-  useEffect(() => saveDocuments(documents), [documents]);
+  /*
+   * `localStorage` is the whole backend, and it can refuse: quota, private
+   * browsing, a locked-down kiosk. The session keeps working either way, but a
+   * "Changes saved" toast over a write that threw is the product asserting
+   * something untrue — and the reader finds out when the reload is empty.
+   *
+   * Warned once, not per keystroke: the condition does not clear itself, so
+   * repeating it on every edit would bury the edits it is warning about.
+   */
+  const warnedAboutSaving = useRef(false);
+  useEffect(() => {
+    if (saveDocuments(documents)) return;
+    if (warnedAboutSaving.current) return;
+    warnedAboutSaving.current = true;
+    notify({
+      tone: 'critical',
+      title: 'Changes cannot be saved',
+      description:
+        'They are visible in this session but will be lost on reload. Check whether this browser allows local storage.',
+    });
+  }, [documents, notify]);
+
+  useEffect(() => {
+    if (!stored.reseeded) return;
+    notify({
+      tone: 'critical',
+      title: 'Saved documents could not be read',
+      description: 'The library has been reset to the sample data.',
+    });
+  }, [stored.reseeded, notify]);
 
   const openDoc = useMemo(
     () => documents.find((doc) => doc.id === openDocId) ?? null,
@@ -88,11 +135,12 @@ export function App() {
         ...doc.versions,
         { version: doc.versions.length + 1, date: new Date().toISOString().slice(0, 10), size: `${size} MB` },
       ],
-      auditTrail: [`${stamp()} – New version uploaded by ${CURRENT_USER}`, ...doc.auditTrail],
+      auditTrail: [auditEntry('New version uploaded'), ...doc.auditTrail],
     }));
   }
 
   const currentScreen = PAGES.find((item) => item.id === page)?.screen ?? '';
+  const mayUpload = operationsForRole(role).includes('upload');
 
   return (
     <>
@@ -147,12 +195,22 @@ export function App() {
               />
             }
             actions={
-              <span className="dm-user">
+              <span className="dm-identity">
+                <span className="dm-rolepicker">
+                  <Select
+                    label="Acting as"
+                    value={role}
+                    options={ROLES.map((r) => ({ value: r.id, label: r.name }))}
+                    onChange={(event) => setRole(event.target.value)}
+                  />
+                </span>
+                <span className="dm-user">
                 {/* `decorative`, because the name is rendered beside it. An
                     avatar with an accessible name next to the same name spoken
                     again is the duplicate every audit finds. */}
-                <Avatar name={CURRENT_USER} size="sm" decorative />
-                {CURRENT_USER}
+                  <Avatar name={CURRENT_USER} size="sm" decorative />
+                  {CURRENT_USER}
+                </span>
               </span>
             }
           />
@@ -161,9 +219,24 @@ export function App() {
           <SidePanel
             ariaLabel="Sections"
             header={
-              <Button fullWidth onClick={() => setUpload('new')}>
-                Upload
-              </Button>
+              /*
+               * `upload` is not a document-scoped question — there is no
+               * document yet — so it is asked of the role's granted operations.
+               * Disabled with the reason on it beats a button that fails.
+               */
+              mayUpload ? (
+                <Button fullWidth onClick={() => setUpload('new')}>
+                  Upload
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  disabled
+                  title={`${roleById(role)?.name ?? role} has no rule granting upload`}
+                >
+                  Upload
+                </Button>
+              )
             }
           >
             <NavList ariaLabel="Sections">
@@ -179,7 +252,11 @@ export function App() {
           </SidePanel>
         }
       >
-        {page === 'dashboard' ? (
+        {page === 'retention' ? (
+          <Retention documents={documents} currentRole={role} onOpenDocument={setOpenDocId} />
+        ) : page === 'permissions' ? (
+          <Permissions currentRole={role} />
+        ) : page === 'dashboard' ? (
           <Dashboard
             documents={documents}
             onOpenDocument={setOpenDocId}
@@ -192,6 +269,8 @@ export function App() {
             onFiltersChange={setFilters}
             onOpenDocument={setOpenDocId}
             onUpload={() => setUpload('new')}
+            currentRole={role}
+            onChangeDocument={updateDoc}
           />
         )}
       </AppShell>
@@ -220,6 +299,7 @@ export function App() {
         document={openDoc}
         onClose={() => setOpenDocId(null)}
         onChange={updateDoc}
+        currentRole={role}
         onUploadNewVersion={(id) => {
           setOpenDocId(null);
           setUpload(id);

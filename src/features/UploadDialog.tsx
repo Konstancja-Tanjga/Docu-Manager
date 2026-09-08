@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Button, Dialog, FileDropzone, RemovableChip, StateBlock } from '@bighat/ui';
+import { Button, Dialog, FileDropzone, RemovableChip, Select, StateBlock } from '@bighat/ui';
 
 import {
   CURRENT_USER,
+  DOCUMENT_TYPES,
   MAX_FILE_SIZE_MB,
-  stamp,
+  auditEntry,
+  formatSize,
   today,
+  type DocumentType,
   type ManagedDocument,
 } from '../data/documents';
 
@@ -22,10 +25,20 @@ export function UploadDialog({
   onUploaded: (created: ManagedDocument[], newVersionOf: string | null) => void;
 }) {
   const [files, setFiles] = useState<File[]>([]);
+  /*
+   * UPL-19: metadata is proposed, not demanded. The type is offered here with a
+   * default so nobody is stopped at the upload, and it stays editable on the
+   * document afterwards. Before this it was hard-coded to Invoice, so every
+   * production order arrived mislabelled and could never be corrected.
+   */
+  const [type, setType] = useState<DocumentType>('Invoice');
 
   // Reopening the dialog must not inherit the last attempt's queue.
   useEffect(() => {
-    if (!open) setFiles([]);
+    if (!open) {
+      setFiles([]);
+      setType('Invoice');
+    }
   }, [open]);
 
   const sized = files.map((file) => ({
@@ -59,7 +72,12 @@ export function UploadDialog({
             // Disabled rather than an alert on click: the reason there is
             // nothing to upload is already visible on screen.
             disabled={queued.length === 0}
-            onClick={() => onUploaded(queued.map((entry) => toDocument(entry.file, entry.sizeMB)), newVersionOf)}
+            onClick={() =>
+              onUploaded(
+                queued.map((entry) => toDocument(entry.file, entry.sizeMB, type)),
+                newVersionOf,
+              )
+            }
           >
             {queued.length > 1 ? `Upload ${queued.length} files` : 'Upload'}
           </Button>
@@ -69,12 +87,22 @@ export function UploadDialog({
       <div className="dm-stack">
         <FileDropzone
           label={newVersionOf ? 'Replacement file' : 'Files to upload'}
-          description={`Any file type, up to ${MAX_FILE_SIZE_MB} MB each.${
+          description={`Any file type, up to ${formatSize(MAX_FILE_SIZE_MB)} each.${
             newVersionOf ? ' One file — a new version replaces one file.' : ''
           }`}
           multiple={!newVersionOf}
           onFiles={(incoming) => setFiles(newVersionOf ? incoming.slice(0, 1) : incoming)}
         />
+
+        {!newVersionOf && (
+          <Select
+            label="Document type"
+            description="You can change this later from the document's Edit tab."
+            value={type}
+            options={DOCUMENT_TYPES.map((value) => ({ value, label: value }))}
+            onChange={(event) => setType(event.target.value as DocumentType)}
+          />
+        )}
 
         {queued.length > 0 && (
           /*
@@ -87,7 +115,7 @@ export function UploadDialog({
             {queued.map((entry, index) => (
               <RemovableChip
                 key={`${entry.file.name}-${index}`}
-                label={`${entry.file.name} · ${entry.sizeMB.toFixed(1)} MB`}
+                label={`${entry.file.name} · ${formatSize(entry.sizeMB)}`}
                 removeLabel={`Remove ${entry.file.name} from this upload`}
                 onRemove={() => setFiles((current) => current.filter((_, i) => i !== index))}
               />
@@ -108,8 +136,8 @@ export function UploadDialog({
                 ? 'One file is too large to upload'
                 : `${tooBig.length} files are too large to upload`
             }
-            description={`Over the ${MAX_FILE_SIZE_MB} MB limit: ${tooBig
-              .map((entry) => `${entry.file.name} (${entry.sizeMB.toFixed(1)} MB)`)
+            description={`Over the ${formatSize(MAX_FILE_SIZE_MB)} limit: ${tooBig
+              .map((entry) => `${entry.file.name} (${formatSize(entry.sizeMB)})`)
               .join(', ')}. Remove them or choose smaller files.`}
           />
         )}
@@ -118,12 +146,20 @@ export function UploadDialog({
   );
 }
 
-function toDocument(file: File, sizeMB: number): ManagedDocument {
+function toDocument(file: File, sizeMB: number, type: DocumentType): ManagedDocument {
   const size = sizeMB.toFixed(1);
   return {
     id: `DOC-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2, 6)}`,
     title: file.name,
-    type: 'Invoice',
+    type,
+    /*
+     * UPL-19 again: proposed, not demanded. The department follows from the
+     * type because that is true of every document in this fiction, and the
+     * classification starts at the safer of the two values. Both are corrected
+     * on the document's Edit tab by anyone holding `edit`.
+     */
+    department: type === 'Invoice' ? 'Finance' : 'Production',
+    classification: 'Internal',
     linkedRecord: 'Not linked yet',
     status: 'Pending',
     uploadDate: today(),
@@ -132,6 +168,6 @@ function toDocument(file: File, sizeMB: number): ManagedDocument {
     description: '',
     tags: [],
     versions: [{ version: 1, date: today(), size: `${size} MB` }],
-    auditTrail: [`${stamp()} – Uploaded by ${CURRENT_USER}`],
+    auditTrail: [auditEntry('Uploaded')],
   };
 }

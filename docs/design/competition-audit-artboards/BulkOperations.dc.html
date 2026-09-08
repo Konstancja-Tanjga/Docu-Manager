@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root{
+      --surface:#fff; --sunken:#f7f8f9; --ink:#14181c; --t2:#39414a; --t3:#59636f;
+      --bd:#dfe3e7; --bd2:#6b7683; --pri:#3563e9; --link:#2148c9;
+      --ok-bg:#ecfdf5; --ok-fg:#0a573b; --ok-bd:#a7f3d0;
+      --wa-bg:#fffbeb; --wa-fg:#7c4a10; --wa-bd:#fde68a;
+      --in-bg:#eef4ff; --in-fg:#1a39a1; --in-bd:#bcd0ff;
+      --cr-bg:#fef2f2; --cr-fg:#a31f24; --cr-bd:#fecaca;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--surface);color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;}
+    a{color:var(--link);} a:hover{color:var(--pri);}
+    .pad{padding:40px;}
+    .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);font-weight:650;}
+    h1{margin:6px 0 0;font-size:30px;font-weight:700;letter-spacing:-.025em;text-wrap:balance;}
+    h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.012em;}
+    p{margin:8px 0 0;color:var(--t2);max-width:68ch;}
+    .lede{font-size:15px;color:var(--t2);margin-top:10px;max-width:74ch;}
+    .row{display:flex;gap:20px;}
+    .col{display:flex;flex-direction:column;gap:20px;}
+    .card{border:1px solid var(--bd);border-radius:10px;padding:20px;background:var(--surface);}
+    .tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;
+      font-size:11px;font-weight:650;border:1px solid;}
+    .ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-bd);}
+    .wa{background:var(--wa-bg);color:var(--wa-fg);border-color:var(--wa-bd);}
+    .in{background:var(--in-bg);color:var(--in-fg);border-color:var(--in-bd);}
+    .cr{background:var(--cr-bg);color:var(--cr-fg);border-color:var(--cr-bd);}
+    .quote{border-left:3px solid var(--bd2);padding:2px 0 2px 14px;color:var(--t2);
+      font-style:italic;margin-top:10px;max-width:66ch;}
+    .req{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+      background:var(--in-bg);color:var(--in-fg);padding:1px 6px;border-radius:4px;
+      border:1px solid var(--in-bd);white-space:nowrap;}
+    .shot{width:100%;border:1px solid var(--bd);border-radius:8px;display:block;}
+    .callout{display:flex;gap:12px;align-items:flex-start;}
+    .pin{flex:0 0 24px;height:24px;border-radius:9999px;background:var(--ink);color:#fff;
+      display:grid;place-items:center;font-size:12px;font-weight:700;}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+    .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);
+      font-weight:650;padding:8px 10px;border-bottom:1px solid var(--bd);}
+    td{padding:9px 10px;border-bottom:1px solid var(--bd);color:var(--t2);}
+    td.k{color:var(--ink);font-weight:550;}
+    .num{font-variant-numeric:tabular-nums;}
+
+  </style>
+</helmet>
+<div class="pad col" style="gap:22px">
+  <div>
+    <div class="eyebrow">Reference screen · our design</div>
+    <h1 style="font-size:24px">ZIP export and bulk operations</h1>
+    <p class="lede" style="font-size:14px">The selection model is specified once because getting it wrong once gets it wrong everywhere: the misunderstanding that exports 50 of 460 documents also deletes 50 of 460.</p>
+  </div>
+  <img class="shot" src="bulk.jpg" alt="">
+  <div class="col" style="gap:14px"><div class="callout">
+        <span class="pin">1</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Row checkboxes and a master checkbox</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">The master selects what is currently loaded, and says so.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-1</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">2</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">“Select all filtered results” is a separate action</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Two acts, two labels: fifty on this page, or all 460 matching these filters. Conflating them is the single most common cause of an incomplete export.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-2</span><span class="req">BDL-3</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">3</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">The selection limit is stated inline, before the attempt</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Next to the action, naming the limit and the current selection. A limit discovered by rejection wastes the selection the user just built.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-5</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">4</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Bulk delete is logical and requires a reason</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">The document leaves the working views, stays recoverable, and stays subject to retention and legal hold. The reason goes into the audit entry.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-7</span><span class="req">PRM-18</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">5</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Metadata export offers a format choice in the dialog</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Not a global setting — the recipient differs per export.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-8</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">6</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Results land in two places</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">A toast says it finished; a bulk-operations panel holds what did not, and why. The toast is gone by the time anyone reads the failures.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">BLK-11</span><span class="req">BLK-12</span></div>
+        </div>
+      </div></div>
+  <div class="card" style="background:var(--sunken);margin-top:4px"><p style="margin:0;font-size:13px">Every one of these reports <b>per item, never per batch</b> — 460 documents where 12 fail leaves 448 done and names the 12 with a reason each (<b>BLK-10</b>).</p></div>
+</div>
+</x-dc>
+</body>
+</html>

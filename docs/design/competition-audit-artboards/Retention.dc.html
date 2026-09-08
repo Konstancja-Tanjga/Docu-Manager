@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root{
+      --surface:#fff; --sunken:#f7f8f9; --ink:#14181c; --t2:#39414a; --t3:#59636f;
+      --bd:#dfe3e7; --bd2:#6b7683; --pri:#3563e9; --link:#2148c9;
+      --ok-bg:#ecfdf5; --ok-fg:#0a573b; --ok-bd:#a7f3d0;
+      --wa-bg:#fffbeb; --wa-fg:#7c4a10; --wa-bd:#fde68a;
+      --in-bg:#eef4ff; --in-fg:#1a39a1; --in-bd:#bcd0ff;
+      --cr-bg:#fef2f2; --cr-fg:#a31f24; --cr-bd:#fecaca;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--surface);color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;}
+    a{color:var(--link);} a:hover{color:var(--pri);}
+    .pad{padding:40px;}
+    .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);font-weight:650;}
+    h1{margin:6px 0 0;font-size:30px;font-weight:700;letter-spacing:-.025em;text-wrap:balance;}
+    h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.012em;}
+    p{margin:8px 0 0;color:var(--t2);max-width:68ch;}
+    .lede{font-size:15px;color:var(--t2);margin-top:10px;max-width:74ch;}
+    .row{display:flex;gap:20px;}
+    .col{display:flex;flex-direction:column;gap:20px;}
+    .card{border:1px solid var(--bd);border-radius:10px;padding:20px;background:var(--surface);}
+    .tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;
+      font-size:11px;font-weight:650;border:1px solid;}
+    .ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-bd);}
+    .wa{background:var(--wa-bg);color:var(--wa-fg);border-color:var(--wa-bd);}
+    .in{background:var(--in-bg);color:var(--in-fg);border-color:var(--in-bd);}
+    .cr{background:var(--cr-bg);color:var(--cr-fg);border-color:var(--cr-bd);}
+    .quote{border-left:3px solid var(--bd2);padding:2px 0 2px 14px;color:var(--t2);
+      font-style:italic;margin-top:10px;max-width:66ch;}
+    .req{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+      background:var(--in-bg);color:var(--in-fg);padding:1px 6px;border-radius:4px;
+      border:1px solid var(--in-bd);white-space:nowrap;}
+    .shot{width:100%;border:1px solid var(--bd);border-radius:8px;display:block;}
+    .callout{display:flex;gap:12px;align-items:flex-start;}
+    .pin{flex:0 0 24px;height:24px;border-radius:9999px;background:var(--ink);color:#fff;
+      display:grid;place-items:center;font-size:12px;font-weight:700;}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+    .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);
+      font-weight:650;padding:8px 10px;border-bottom:1px solid var(--bd);}
+    td{padding:9px 10px;border-bottom:1px solid var(--bd);color:var(--t2);}
+    td.k{color:var(--ink);font-weight:550;}
+    .num{font-variant-numeric:tabular-nums;}
+
+  </style>
+</helmet>
+<div class="pad col" style="gap:22px">
+  <div>
+    <div class="eyebrow">Reference screen · our design</div>
+    <h1 style="font-size:24px">Retention policy configuration</h1>
+    <p class="lede" style="font-size:14px">A retention policy is an object with a lifecycle, not a number typed into a document type. It outlives the documents it governs and usually outlives whoever configured it.</p>
+  </div>
+  <img class="shot" src="retention.jpg" alt="">
+  <div class="col" style="gap:14px"><div class="callout">
+        <span class="pin">1</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Draft, active, retired</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Draft governs nothing. Active governs documents. Retired stops new assignments while continuing to govern what it already holds — retirement must never release documents already counting.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">RET-5</span><span class="req">RET-7</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">2</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Period is a value and a unit</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Seven and years, as separate inputs. A duration parsed from free text is a duration that will eventually be entered wrong.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">RET-2</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">3</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">The period counts from a named start event</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Creation, status change, dossier closure, or a date field on the document. This is the mechanism that makes “seven years from closure” expressible without a script.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">RET-3</span><span class="req">DOS-A-12</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">4</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">Policies attach to document types, one policy to many</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">Changing which policy a type uses reports how many existing documents it affects before it is applied.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">RET-1</span><span class="req">RET-9</span></div>
+        </div>
+      </div><div class="callout">
+        <span class="pin">5</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13.5px">The user is told, in place, that retention is in effect</div>
+          <div style="color:var(--t2);font-size:13px;margin-top:2px">With the expiry date and the policy that decided it. Users delete what they should keep when this is hidden.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="req">RET-10</span><span class="req">DOS-U-13</span></div>
+        </div>
+      </div></div>
+  <div class="card" style="background:var(--sunken);margin-top:4px"><p style="margin:0;font-size:13px">This is where we part company with the market. A compliance-focused DMS deletes automatically once the period lapses. <b>RET-12</b> refuses: expiry moves the document into a disposition review queue and nothing is destroyed without an explicit, audited human decision.</p></div>
+</div>
+</x-dc>
+</body>
+</html>

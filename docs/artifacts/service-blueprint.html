@@ -1,0 +1,140 @@
+<title>The Line of Visibility</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  :root{--ground:#EFF1EC;--panel:#E4E8DE;--tint:#E0E5F5;--warm:#EFE9D6;--ink:#10131A;--muted:#58606E;--faint:#97A08F;--blue:#1B34D8;--acid:#7E8A00;--acid-fill:#C8D400;--rule:#CFD5C8;--rule-strong:#A9B2A0}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground:#0D1014;--panel:#171B21;--tint:#171C2E;--warm:#1E1B14;--ink:#EDEFEA;--muted:#9AA3B1;--faint:#5A6470;--blue:#7E92FF;--acid:#C3D122;--acid-fill:#C8D400;--rule:#242A33;--rule-strong:#3A424E}}
+  :root[data-theme="dark"]{--ground:#0D1014;--panel:#171B21;--tint:#171C2E;--warm:#1E1B14;--ink:#EDEFEA;--muted:#9AA3B1;--faint:#5A6470;--blue:#7E92FF;--acid:#C3D122;--acid-fill:#C8D400;--rule:#242A33;--rule-strong:#3A424E}
+
+  body{background:var(--ground);color:var(--ink);font-family:'Newsreader',Georgia,'Times New Roman',serif;font-size:18px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .scroll{overflow-x:auto}
+  .sheet{width:1860px;padding:44px 40px;box-sizing:border-box}
+  h1{font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:44px;line-height:1.04;margin:0 0 12px;letter-spacing:-0.015em;text-wrap:balance}
+  h2{font-family:'Bricolage Grotesque','Helvetica Neue',Arial,sans-serif;font-weight:800;font-size:22px;margin:0 0 10px;letter-spacing:-0.015em}
+  p{margin:0}
+  a{color:var(--blue);text-underline-offset:2px}
+  a:hover{color:var(--ink)}
+  a:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+  .eyebrow{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;color:var(--acid);margin-bottom:12px}
+  .lede{color:var(--muted);font-size:17.5px;max-width:104ch;margin-bottom:26px}
+  .lede strong{color:var(--ink);font-weight:600}
+
+  .bp{display:grid;grid-template-columns:130px repeat(6,276px);border-top:2px solid var(--rule-strong)}
+  .lane{position:sticky;left:0;z-index:2;background:var(--panel);border-right:2px solid var(--rule-strong);border-bottom:1px solid var(--rule);padding:13px 12px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+  .c{padding:13px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);font-size:14px;line-height:1.44;background:var(--ground)}
+  .c strong{font-weight:600}
+  .c code{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px}
+  .phase{background:var(--tint);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:600;letter-spacing:0.04em;color:var(--ink)}
+  .phase b{display:block;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue);margin-bottom:3px;font-weight:600}
+  .front{background:var(--ground)}
+  .screens{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:11px;font-weight:600;color:var(--blue);display:block;margin-bottom:5px}
+  .back{background:var(--ground);color:var(--muted)}
+  .sup{background:var(--panel);font-size:13px;color:var(--muted)}
+  .risk{background:var(--warm);font-size:13.5px}
+  .risk b{color:var(--acid);font-weight:600}
+  .none{color:var(--faint)}
+  .divider{grid-column:1 / -1;background:var(--ink);color:var(--ground);padding:7px 14px;font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;display:flex;gap:16px;align-items:baseline}
+  .divider span:last-child{letter-spacing:0.04em;text-transform:none;opacity:0.72;font-size:10.5px}
+
+  .after{max-width:104ch;margin-top:34px;display:flex;flex-direction:column;gap:26px}
+  .after p{font-size:17px;color:var(--muted)}
+  .after p strong{color:var(--ink);font-weight:600}
+  .cases{border-collapse:collapse;font-size:15px}
+  .cases th,.cases td{text-align:left;padding:9px 16px 9px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  .cases th{font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .cases td:first-child{white-space:nowrap;color:var(--ink)}
+
+  .credit{margin-top:36px;padding-top:14px;border-top:2px solid var(--ink);font-family:'IBM Plex Mono',ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--muted);display:flex;gap:24px;flex-wrap:wrap}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="scroll"><div class="sheet">
+
+  <p class="eyebrow">DocuManager &middot; Service blueprint</p>
+  <h1>The line of visibility</h1>
+  <p class="lede">A journey says <em>what</em> happens. A blueprint says <strong>what has to work underneath</strong> for it to happen — and where the boundary sits between what the person filing a document can see and what the system does out of sight. Everything below the line of interaction is invisible to Maria; everything below the line of visibility is invisible to everyone. The last lane is the one worth arguing with: each risk is paired with the decision that answers it, and several of those decisions are why a requirement got rewritten.</p>
+
+  <div class="bp">
+
+    <div class="lane">Phase</div>
+    <div class="c phase"><b>P1 &middot; arrive</b>Orient</div>
+    <div class="c phase"><b>P2 &middot; find</b>Narrow a set</div>
+    <div class="c phase"><b>P3 &middot; inspect</b>Establish what a document is</div>
+    <div class="c phase"><b>P4 &middot; bring in</b>Get a file in</div>
+    <div class="c phase"><b>P5 &middot; decide</b>Approve or reject</div>
+    <div class="c phase"><b>P6 &middot; hand off</b>Export and retain</div>
+
+    <div class="lane">Maria<br>action</div>
+    <div class="c">Opens the tool. Reads what is waiting</div>
+    <div class="c">Searches, filters by type, tag and <strong>retention state</strong>, orders the result</div>
+    <div class="c">Opens a document. Reads its facts, versions, retention and trail</div>
+    <div class="c">Drops files, or picks them. Names the type. Resolves a checksum match</div>
+    <div class="c">Marks a <strong>production order</strong> approved. An invoice is not hers to approve</div>
+    <div class="c">Selects a set, sees what it will and will not export, takes the metadata and the manifest</div>
+
+    <div class="lane">Front-stage<br>screen and evidence</div>
+    <div class="c front"><span class="screens">S1 Dashboard</span>Four counts, five most recent</div>
+    <div class="c front"><span class="screens">S2 Grid &#8646; S3 Table</span>Count reads "3 of 10", plus what permissions withheld</div>
+    <div class="c front"><span class="screens">S4 Info &middot; S6 Versions &middot; S7 Audit</span>Retention stated in place, with the date and the policy</div>
+    <div class="c front"><span class="screens">S8 Upload</span>Limits stated <strong>before</strong> they are hit</div>
+    <div class="c front"><span class="screens">S4 Info</span>Status badge, two named actions, and <em>your access</em> in words</div>
+    <div class="c front"><span class="screens">S10 Bulk bar &middot; S9 Permissions &middot; S11 Retention</span>Count against total; every exclusion named</div>
+
+    <div class="divider"><span>Line of interaction</span><span>below this line Maria sees nothing</span></div>
+
+    <div class="lane">Back-stage<br>system and others</div>
+    <div class="c back">Reads the stored library; reseeds <em>and says so</em> if it is unreadable</div>
+    <div class="c back">Resolves read permission first, then filters and orders</div>
+    <div class="c back">Computes retention from the governing policy version</div>
+    <div class="c back">Accepts the file, assigns an id, writes version 1</div>
+    <div class="c back">Resolves <code>approve</code> against the rules: grants union, denies subtract</div>
+    <div class="c back">Resolves <code>download</code> per document, excludes legal holds, writes one audit entry</div>
+
+    <div class="divider"><span>Line of visibility</span><span>below this line nobody sees — this is infrastructure</span></div>
+
+    <div class="lane">Support<br>data and rules</div>
+    <div class="c sup"><code>localStorage</code>, one key. No server, no account</div>
+    <div class="c sup"><code>Intl.Collator</code>, natural and case-insensitive; blanks pinned to one end</div>
+    <div class="c sup">Four versioned policies. A hold suspends expiry without moving the date</div>
+    <div class="c sup">No checksum, no virus scan, no text extraction</div>
+    <div class="c sup">Eight rules over four metadata fields; roles read-only from the directory</div>
+    <div class="c sup">Manifest and metadata only — no archive writer, no asynchronous job</div>
+
+    <div class="lane" style="border-bottom:2px solid var(--rule-strong)">Risk<br>and the answer</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">An unreadable library looks exactly like a first visit.<br><b>&rarr;</b> it says so, in a notice and in the console</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">Two tags returned nothing at all.<br><b>&rarr;</b> values inside one facet combine with <strong>OR</strong>, not AND (<code>FLT-2</code>)</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">Expiry quietly destroying something.<br><b>&rarr;</b> expiry is a review queue and nothing else; a hold suspends it without moving the date (<code>RET-12</code>, <code>RET-13</code>)</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">The type was assumed to be <em>Invoice</em>.<br><b>&rarr;</b> proposed at upload, editable after (<code>UPL-19</code>)</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">Anyone could approve anything.<br><b>&rarr;</b> resolved against the rules for this document's metadata, and a refusal <strong>names the rule</strong> (<code>PRM-6</code>)</div>
+    <div class="c risk" style="border-bottom:2px solid var(--rule-strong)">An export that ships less than was asked for, silently.<br><b>&rarr;</b> the count, the size and every exclusion stated <strong>before</strong> the request (<code>BDL-2</code>, <code>BDL-4</code>, <code>BDL-16</code>)</div>
+
+  </div>
+
+  <div class="after">
+    <div>
+      <h2>The step that changed a requirement</h2>
+      <p><code>P4</code> is the phase worth reading twice, because drawing it corrected the specification. <code>UPL-8</code> was written as one case: an upload whose checksum matches an existing document offers to version it. Drawing the dialog turned up <strong>three</strong>, and two of them change what the product is allowed to say.</p>
+    </div>
+
+    <table class="cases">
+      <thead><tr><th>The upload matches</th><th>What the dialog may offer</th></tr></thead>
+      <tbody>
+        <tr><td>the <strong>current</strong> version</td><td>Versioning must be <strong>refused</strong>. A new version would differ from the current one in nothing but its number (<code>UPL-18</code>)</td></tr>
+        <tr><td>an <strong>earlier</strong> version</td><td>This is a restore, not a duplicate (<code>UPL-12</code>)</td></tr>
+        <tr><td>a <strong>different</strong> document</td><td>Versioning is meaningless. This is a filing decision</td></tr>
+      </tbody>
+    </table>
+
+    <div>
+      <h2>What this blueprint does not settle</h2>
+      <p><strong>Where a document comes from.</strong> Every phase here starts with a file already on Maria's machine; scanning, email ingestion and system-to-system delivery are unspecified. <strong>What happens when two people file at once.</strong> There is one user and no concurrency, so check-out and locking have no journey. <strong>The administrator's journey.</strong> Dossier types and a file plan are 24 requirements belonging to a second actor with a second blueprint, and it is not written. And nothing in this product deletes anything, so logical deletion has no state to recover.</p>
+    </div>
+  </div>
+
+  <p class="credit">
+    <span>Konstancja Tanjga</span>
+    <span>8 September 2026</span>
+    <span>DocuManager</span>
+    <span><a href="https://github.com/Konstancja-Tanjga/Docu-Manager">Repository</a></span>
+  </p>
+
+</div></div>

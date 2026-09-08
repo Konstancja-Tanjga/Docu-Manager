@@ -1,0 +1,90 @@
+{
+  "artboards": [
+    {
+      "file": "Batch.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1340,
+      "h": 1180,
+      "title": "1 · Getting files in"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 1500,
+      "y": 0,
+      "w": 1340,
+      "h": 1140,
+      "title": "2 · The choice"
+    },
+    {
+      "file": "Cases.dc.html",
+      "x": 3000,
+      "y": 0,
+      "w": 1340,
+      "h": 1180,
+      "title": "3 · Three cases"
+    },
+    {
+      "file": "Metadata.dc.html",
+      "x": 4500,
+      "y": 0,
+      "w": 1340,
+      "h": 1180,
+      "title": "4 · Metadata"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "flow",
+      "x": 0,
+      "y": -380,
+      "w": 720,
+      "text": "UPLOAD — AND THE CHOICE AT THE HEART OF IT\n\nRead left to right: files arrive, a checksum match asks a question, the question turns out to have three answers, and metadata is proposed rather than demanded.\n\nBuilt on @bighatpoland/ui's own classes. Static mockups, not a clickable prototype.\n\nThe centrepiece is artboard 2. UPL-8 says an upload matching an existing document by checksum offers to version it, and that neither option may be assumed. Drawing that turned out to be the most productive hour of this whole design pass — see artboard 3."
+    },
+    {
+      "id": "finding",
+      "x": 780,
+      "y": -380,
+      "w": 760,
+      "text": "WHAT DRAWING IT FOUND\n\nUPL-8 is under-specified, and one of its cases is forbidden by another requirement.\n\nIf the uploaded content matches the CURRENT version, offering to version it is exactly the no-change check-in that UPL-18 rejects. The option has to be shown and blocked with its reason — not silently absent, because the user needs to know the product understood the request.\n\nIf it matches an EARLIER version, this is a restore: UPL-12 applies and the new version carries the old content forward. That is artboard 2.\n\nAnd if it matches a document the user is not entitled to see, naming it leaks the document's existence, location and author past a Deny rule. Checksum-based duplicate detection is a security surface wearing the costume of a convenience — and it is invisible in the happy path, which is exactly the kind of thing a state canvas exists to catch."
+    },
+    {
+      "id": "a1",
+      "x": 0,
+      "y": 1240,
+      "w": 620,
+      "text": "1 · GETTING FILES IN\n\nLimits are on screen before anyone can hit them, so the drag-over warning is a reminder rather than news.\n\n\"Choose files\" is a real labelled file input, not decoration — a bare drop target is invisible to keyboard and screen reader users, which is why FileDropzone is a recorded design system gap rather than something to improvise.\n\nThe rejection is a StateBlock inside the dialog, not a toast: the user has to remove the file, so the message persists where the action is. And the footer says the thing people actually fear — cancelling does not undo what already went up."
+    },
+    {
+      "id": "a2",
+      "x": 1500,
+      "y": 1200,
+      "w": 620,
+      "text": "2 · THE CHOICE\n\nThe dialog states what it matched before it asks anything: which document, which version, whose, and that version's own comment. Without that the question is unanswerable.\n\nNeither option is preselected and Continue is disabled — that is the requirement, not a nicety. A default here is the whole failure mode: the person clicks the primary button without reading, and either the repository gains a duplicate or a document quietly gains a version of something else.\n\nDiscard is offered plainly, because when content is already stored, doing nothing is often the right answer."
+    },
+    {
+      "id": "a3",
+      "x": 3000,
+      "y": 1240,
+      "w": 620,
+      "text": "3 · THREE CASES\n\nCase 1: matches the current version. Versioning is refused per UPL-18 and shown as refused. Discard becomes primary.\n\nCase 2: matches an earlier version. That is artboard 2 — a restore.\n\nCase 3: matches something invisible to this user. The dialog names nothing, offers no version path, and does not hint that a match happened. The upload proceeds as a separate document.\n\nTwo requirements need writing off the back of this, and they are named on the artboard."
+    },
+    {
+      "id": "a4",
+      "x": 4500,
+      "y": 1240,
+      "w": 620,
+      "text": "4 · METADATA\n\nEvery proposal says where it came from: the title from the document rather than the filename, the date found on page 1, the linked record matched from an order number in the text. Provenance is what makes a field worth checking instead of ignoring — and it is only possible because UPL-21 requires the text to be extracted.\n\nTwo buttons, not one: File document, and File as incomplete. Naming the second one honestly is what stops people inventing a value to get past a required field, which is the real cost of a hard block.\n\nNo dossier picker, deliberately. Filing is a rule's job first, and the rule already matched the order number."
+    },
+    {
+      "id": "gaps",
+      "x": 5260,
+      "y": -380,
+      "w": 620,
+      "text": "STILL NOT DRAWN\n\nVirus scanning and quarantine (UPL-6) — a document that fails a scan is held, its uploader told, and an audit entry written. It is never silently deleted.\n\nCheck-out and the competing check-in it rejects (UPL-15 to UPL-18), including force-release by an administrator.\n\nAnd STA-26 still is not met by any canvas so far: every state needs seeing in both themes at all three configured widths. Screenshots are the evidence."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

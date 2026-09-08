@@ -252,16 +252,28 @@ rewrite: every path serves `index.html`, because navigation here is React state
 rather than routes, so a refresh on any address has to land on the app rather
 than a 404.
 
-One thing worth knowing before importing it: the design system is a **git
-dependency**, and npm writes git URLs into the lockfile as `git+ssh://` even
-when `package.json` asks for https. A build host has no SSH key for GitHub, so
-`npm ci` fails there with a permission error that looks like a private-repo
-problem and is not one. The lockfile in this repository is pinned over
-`git+https://` for that reason, and it is verified rather than assumed:
+**Set the production branch deliberately.** The design-system upgrade and
+everything built on it live on `bighat-4` until that work is merged. Deploying
+`main` builds and serves — but it serves the *pre-upgrade* prototype against
+`@bighatpoland/ui@2.0.0`, with no permissions, no retention and no bulk
+operations. That is a working app, and it is not this one.
+
+The design system is a git dependency, so `npm install` clones and builds it
+from source rather than fetching a tarball. Two consequences worth knowing:
+installs are slower than they look, and the dependency is pinned to a commit on
+a branch until that branch merges.
+
+### One thing that is *not* a problem, recorded so nobody re-fixes it
+
+npm writes git dependencies into the lockfile as `git+ssh://git@github.com/…`
+even when `package.json` asks for `https`, which looks like it must fail on a
+build host with no SSH key. **It does not.** npm falls back to https for GitHub
+by itself — verified on a clean cache with SSH disabled:
 
 ```bash
-GIT_SSH_COMMAND=/bin/false npm ci   # succeeds only if nothing needs SSH
+GIT_SSH_COMMAND=/bin/false npm ci --cache /tmp/fresh   # succeeds
 ```
 
-Keep that in mind after any `npm install` that re-resolves the dependency —
-npm will normalise it back to ssh, and the next deploy will fail.
+The dependency here is written as an explicit `git+https://` URL anyway, which
+costs nothing and says what it means. But it is not load-bearing, and an
+`npm install` that normalises it back to `ssh` breaks nothing.

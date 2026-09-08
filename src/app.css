@@ -1,12 +1,17 @@
 /**
  * Product-local styles for DocuManager.
  *
- * Every value below is either a semantic token from @bighatpoland/ui or a
+ * Every value below is either a semantic token from @bighat/ui or a
  * layout property. No colour literals, no spacing off the 4px scale, and no
  * primitive tokens — see rules 1 and 2 of the design system's agent skill.
  *
  * If you find yourself wanting a colour with no semantic token, that is the
  * system missing a role. Say so; do not reach a layer down.
+ *
+ * This file used to carry the styling for six local components too. All six
+ * are now in the design system, so what is left is page layout and the
+ * inside of a Card — product arrangement, which is what a product stylesheet
+ * should be.
  */
 
 /* ── Page scaffolding ─────────────────────────────────────────────── */
@@ -52,14 +57,25 @@
   color: var(--bh-text-primary);
 }
 
-.dm-toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--bh-gap-normal);
-  flex-wrap: wrap;
+/* ── Brand and identity ───────────────────────────────────────────── */
+
+/*
+ * The narrow-width nav trigger. Only on screen where the shell has taken the
+ * sidebar out of the grid, which AppShell does at 900px.
+ *
+ * The literal is the design system's documented media-query exemption to rule 2:
+ * a media query cannot read a custom property, so `--bh-breakpoint-md` cannot be
+ * used here. The value is that token's, and it has to stay in step with it.
+ */
+.dm-navtoggle {
+  display: none;
 }
 
-/* ── Brand and identity ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .dm-navtoggle {
+    display: inline-flex;
+  }
+}
 
 .dm-brand {
   display: flex;
@@ -87,20 +103,6 @@
   color: var(--bh-text-secondary);
   font-size: 0.875rem;
   white-space: nowrap;
-}
-
-.dm-avatar {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: var(--bh-control-md);
-  height: var(--bh-control-md);
-  border-radius: var(--bh-radius-pill);
-  background: var(--bh-surface-sunken);
-  border: 1px solid var(--bh-border-subtle);
-  color: var(--bh-text-secondary);
-  font-size: 0.75rem;
-  font-weight: 600;
 }
 
 /* ── Dashboard stats ──────────────────────────────────────────────── */
@@ -221,213 +223,14 @@
   overflow-wrap: anywhere;
 }
 
-/* ── Chips ────────────────────────────────────────────────────────── */
+/* ── Chip rows ────────────────────────────────────────────────────── */
 
+/* The chips themselves are the system's FilterChip and RemovableChip. All this
+   owns is how a row of them wraps. */
 .dm-chips {
   display: flex;
   flex-wrap: wrap;
   gap: var(--bh-gap-tight);
-}
-
-.dm-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--bh-gap-tight);
-  padding: var(--bh-gap-tight) var(--bh-gap-snug);
-  border-radius: var(--bh-radius-pill);
-  border: 1px solid var(--bh-border-subtle);
-  background: var(--bh-surface-raised);
-  color: var(--bh-text-secondary);
-  font: inherit;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
-.dm-chip--filter {
-  cursor: pointer;
-}
-
-.dm-chip--filter:hover {
-  background: var(--bh-action-secondary-bg-hover);
-}
-
-.dm-chip--pressed {
-  background: var(--bh-action-primary-bg);
-  border-color: var(--bh-action-primary-bg);
-  color: var(--bh-action-primary-fg);
-}
-
-.dm-chip--pressed:hover {
-  background: var(--bh-action-primary-bg-hover);
-}
-
-.dm-chip__remove {
-  display: grid;
-  place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  border: 0;
-  border-radius: var(--bh-radius-pill);
-  background: transparent;
-  color: var(--bh-text-muted);
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.dm-chip__remove:hover {
-  background: var(--bh-status-critical-bg);
-  color: var(--bh-status-critical-fg);
-}
-
-/* ── Toggle group (segmented control) ─────────────────────────────── */
-
-.dm-togglegroup {
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.dm-togglegroup__track {
-  display: inline-flex;
-  border: 1px solid var(--bh-action-secondary-border);
-  border-radius: var(--bh-radius-control);
-  overflow: hidden;
-}
-
-.dm-toggle {
-  display: grid;
-  place-items: center;
-  min-width: var(--bh-control-md);
-  height: var(--bh-control-md);
-  padding-inline: var(--bh-gap-snug);
-  background: var(--bh-action-secondary-bg);
-  color: var(--bh-action-secondary-fg);
-  cursor: pointer;
-}
-
-.dm-toggle:hover {
-  background: var(--bh-action-secondary-bg-hover);
-}
-
-.dm-toggle--active {
-  background: var(--bh-action-primary-bg);
-  color: var(--bh-action-primary-fg);
-}
-
-/*
- * The radio itself is visually hidden, so the ring has to land on the label.
- * This adds a focus indicator; it never removes one — see rule 5.
- */
-.dm-toggle:focus-within {
-  outline: 2px solid var(--bh-border-focus);
-  outline-offset: -2px;
-}
-
-/* ── Form fields (local Textarea) ─────────────────────────────────── */
-
-.dm-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bh-gap-tight);
-}
-
-.dm-field__label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--bh-text-primary);
-}
-
-.dm-field__description {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--bh-text-muted);
-}
-
-.dm-field__error {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--bh-status-critical-fg);
-}
-
-.dm-textarea {
-  width: 100%;
-  padding: var(--bh-padding-block) var(--bh-padding-inline);
-  border: 1px solid var(--bh-border-strong);
-  border-radius: var(--bh-radius-control);
-  background: var(--bh-surface-base);
-  color: var(--bh-text-primary);
-  font: inherit;
-  resize: vertical;
-}
-
-.dm-textarea[aria-invalid='true'] {
-  border-color: var(--bh-status-critical-border);
-}
-
-/* ── Dropzone ─────────────────────────────────────────────────────── */
-
-.dm-dropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--bh-gap-snug);
-  padding: var(--bh-padding-section);
-  border: 1px dashed var(--bh-border-strong);
-  border-radius: var(--bh-radius-surface);
-  background: var(--bh-surface-sunken);
-  text-align: center;
-}
-
-.dm-dropzone--active {
-  border-color: var(--bh-border-focus);
-  border-style: solid;
-}
-
-.dm-dropzone__lead {
-  margin: 0;
-  font-weight: 600;
-  color: var(--bh-text-primary);
-}
-
-.dm-dropzone__hint {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--bh-text-muted);
-}
-
-/* ── Tabs ─────────────────────────────────────────────────────────── */
-
-.dm-tabs {
-  display: flex;
-  gap: var(--bh-gap-tight);
-  border-bottom: 1px solid var(--bh-border-subtle);
-}
-
-.dm-tab {
-  padding: var(--bh-padding-block) var(--bh-padding-inline);
-  border: 0;
-  /* Reserved on every tab so the active one does not shift the row. */
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--bh-text-secondary);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.dm-tab:hover {
-  color: var(--bh-text-primary);
-}
-
-.dm-tab--active {
-  color: var(--bh-text-link);
-  border-bottom-color: var(--bh-text-link);
-}
-
-.dm-tabpanel {
-  padding-top: var(--bh-padding-section);
 }
 
 /* ── Dialog content ───────────────────────────────────────────────── */
@@ -470,21 +273,6 @@
   color: var(--bh-text-muted);
 }
 
-.dm-body {
-  margin: 0;
-  color: var(--bh-text-secondary);
-}
-
-.dm-link {
-  color: var(--bh-text-link);
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 /* Version history and audit trail: a real <ol>, styled as a rail. */
 .dm-trail {
   list-style: none;
@@ -507,38 +295,9 @@
   font-weight: 600;
 }
 
-.dm-filelist {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--bh-gap-tight);
-}
-
-.dm-filelist__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--bh-gap-snug);
-  padding: var(--bh-padding-block) var(--bh-padding-inline);
-  border-radius: var(--bh-radius-control);
-  background: var(--bh-surface-sunken);
-  font-size: 0.875rem;
-  color: var(--bh-text-secondary);
-}
-
-.dm-filelist__name {
-  overflow-wrap: anywhere;
-}
-
 /* ── Utilities ────────────────────────────────────────────────────── */
 
 .dm-grow {
   flex: 1;
   min-width: 0;
-}
-
-.dm-nowrap {
-  white-space: nowrap;
 }

@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ToastProvider } from '@bighatpoland/ui';
+import { ToastProvider } from '@bighat/ui';
 
 // The design system's stylesheet first — token definitions and base rules.
 // Product styles second, so they layer on top rather than under.
-import '@bighatpoland/ui/styles.css';
+import '@bighat/ui/styles.css';
 import './app.css';
 
 import { App } from './App';

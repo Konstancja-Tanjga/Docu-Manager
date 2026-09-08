@@ -1,4 +1,4 @@
-import { Card } from '@bighatpoland/ui';
+import { Card } from '@bighat/ui';
 
 /**
  * LOCAL COMPOSITION — built from the system's `Card`, not a new primitive.

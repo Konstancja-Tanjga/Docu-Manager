@@ -1,8 +1,17 @@
 import { useState } from 'react';
-import { Badge, Button, Card, Select, StateBlock, Table, type Column } from '@bighatpoland/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  FilterChip,
+  SegmentedControl,
+  Select,
+  StateBlock,
+  Table,
+  Toolbar,
+  type Column,
+} from '@bighat/ui';
 
-import { FilterChip } from '../components/Chip';
-import { ToggleGroup } from '../components/ToggleGroup';
 import {
   NO_FILTERS,
   applyFilters,
@@ -14,8 +23,8 @@ import {
 } from '../data/documents';
 
 const VIEWS = [
-  { id: 'grid', label: 'Grid', icon: '▦' },
-  { id: 'list', label: 'List', icon: '☰' },
+  { value: 'grid', label: 'Grid' },
+  { value: 'list', label: 'List' },
 ];
 
 export function Documents({
@@ -110,7 +119,31 @@ export function Documents({
           Document library <span className="dm-count">({filtered.length})</span>
         </h1>
 
-        <div className="dm-toolbar">
+        {/*
+          `Toolbar` owns the grouping and the Home/End/arrow behaviour, so the
+          filter and the view switch are one named region rather than two
+          controls that happen to sit next to each other.
+        */}
+        <Toolbar
+          ariaLabel="Filter and view documents"
+          flush
+          end={
+            /*
+             * The legend is shown, not hidden. Both controls in this toolbar
+             * then carry a label above the control, which is what lines them
+             * up — with the legend hidden, the segmented control floated
+             * against the Select's label rather than its field.
+             */
+            <SegmentedControl
+              legend="View"
+              showLegend
+              options={VIEWS}
+              value={view}
+              onChange={setView}
+              size="sm"
+            />
+          }
+        >
           {/*
             `Select` has no `hideLabel` — only `Input` does. So the label is
             visible here, which is the better default anyway.
@@ -127,15 +160,7 @@ export function Documents({
               onFiltersChange({ ...filters, type: event.target.value as Filters['type'] })
             }
           />
-
-          <ToggleGroup
-            legend="View documents as"
-            name="dm-view"
-            options={VIEWS}
-            value={view}
-            onChange={setView}
-          />
-        </div>
+        </Toolbar>
       </div>
 
       {tags.length > 0 && (
@@ -145,7 +170,7 @@ export function Documents({
               key={tag}
               label={`#${tag}`}
               pressed={filters.activeTags.includes(tag)}
-              onToggle={() =>
+              onClick={() =>
                 onFiltersChange({
                   ...filters,
                   activeTags: filters.activeTags.includes(tag)

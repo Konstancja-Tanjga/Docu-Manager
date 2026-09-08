@@ -5,6 +5,7 @@ import {
   Avatar,
   Button,
   Input,
+  Select,
   NavItem,
   NavList,
   SidePanel,
@@ -16,6 +17,8 @@ import { DocumentDialog } from './features/DocumentDialog';
 import { UploadDialog } from './features/UploadDialog';
 import { Dashboard } from './pages/Dashboard';
 import { Documents } from './pages/Documents';
+import { Permissions } from './pages/Permissions';
+import { ROLES, operationsForRole, roleById } from './data/permissions';
 import {
   CURRENT_USER,
   NO_FILTERS,
@@ -26,11 +29,12 @@ import {
   type ManagedDocument,
 } from './data/documents';
 
-type Page = 'dashboard' | 'documents';
+type Page = 'dashboard' | 'documents' | 'permissions';
 
 const PAGES: { id: Page; label: string; screen: string }[] = [
   { id: 'dashboard', label: 'Dashboard', screen: 'Dashboard' },
   { id: 'documents', label: 'Documents', screen: 'Document library' },
+  { id: 'permissions', label: 'Permissions', screen: 'Permissions' },
 ];
 
 export function App() {
@@ -42,6 +46,14 @@ export function App() {
   const [stored] = useState(() => loadDocuments());
   const [documents, setDocuments] = useState<ManagedDocument[]>(stored.documents);
   const [page, setPage] = useState<Page>('dashboard');
+  /*
+   * PRM-1 says roles come from the identity provider and are read-only here,
+   * so a prototype has no legitimate way to *change* one. This switcher is
+   * openly a stand-in for signing in as somebody else: it is the only way to
+   * see a rule-based permission model do anything, and the permissions screen
+   * marks which role you are acting as.
+   */
+  const [role, setRole] = useState('controller');
   /** Below 900px the shell's panels leave the grid; this is how they come back. */
   const [navOpen, setNavOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
@@ -126,6 +138,7 @@ export function App() {
   }
 
   const currentScreen = PAGES.find((item) => item.id === page)?.screen ?? '';
+  const mayUpload = operationsForRole(role).includes('upload');
 
   return (
     <>
@@ -180,12 +193,22 @@ export function App() {
               />
             }
             actions={
-              <span className="dm-user">
+              <span className="dm-identity">
+                <span className="dm-rolepicker">
+                  <Select
+                    label="Acting as"
+                    value={role}
+                    options={ROLES.map((r) => ({ value: r.id, label: r.name }))}
+                    onChange={(event) => setRole(event.target.value)}
+                  />
+                </span>
+                <span className="dm-user">
                 {/* `decorative`, because the name is rendered beside it. An
                     avatar with an accessible name next to the same name spoken
                     again is the duplicate every audit finds. */}
-                <Avatar name={CURRENT_USER} size="sm" decorative />
-                {CURRENT_USER}
+                  <Avatar name={CURRENT_USER} size="sm" decorative />
+                  {CURRENT_USER}
+                </span>
               </span>
             }
           />
@@ -194,9 +217,24 @@ export function App() {
           <SidePanel
             ariaLabel="Sections"
             header={
-              <Button fullWidth onClick={() => setUpload('new')}>
-                Upload
-              </Button>
+              /*
+               * `upload` is not a document-scoped question — there is no
+               * document yet — so it is asked of the role's granted operations.
+               * Disabled with the reason on it beats a button that fails.
+               */
+              mayUpload ? (
+                <Button fullWidth onClick={() => setUpload('new')}>
+                  Upload
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  disabled
+                  title={`${roleById(role)?.name ?? role} has no rule granting upload`}
+                >
+                  Upload
+                </Button>
+              )
             }
           >
             <NavList ariaLabel="Sections">
@@ -212,7 +250,9 @@ export function App() {
           </SidePanel>
         }
       >
-        {page === 'dashboard' ? (
+        {page === 'permissions' ? (
+          <Permissions currentRole={role} />
+        ) : page === 'dashboard' ? (
           <Dashboard
             documents={documents}
             onOpenDocument={setOpenDocId}
@@ -225,6 +265,7 @@ export function App() {
             onFiltersChange={setFilters}
             onOpenDocument={setOpenDocId}
             onUpload={() => setUpload('new')}
+            currentRole={role}
           />
         )}
       </AppShell>
@@ -253,6 +294,7 @@ export function App() {
         document={openDoc}
         onClose={() => setOpenDocId(null)}
         onChange={updateDoc}
+        currentRole={role}
         onUploadNewVersion={(id) => {
           setOpenDocId(null);
           setUpload(id);

@@ -84,17 +84,17 @@ These apply to every area and are not repeated in the individual files.
 ## Status in this prototype
 
 Honest accounting, recounted against the code rather than remembered. Of 168
-requirements: **26 met, 7 partial, 135 not implemented.**
+requirements: **39 met, 7 partial, 122 not implemented.**
 
 | Area | Met | Partial | Not | State |
 | ---- | --- | ------- | --- | ----- |
 | Filter (15) | 7 | 1 | 7 | Facets are type, tags and free text; they compose correctly and both empty states exist. No date facet, no facet counts, no saved views, no URL state. |
 | Sort (14) | 11 | 1 | 2 | Sorts the underlying value, naturally, case-insensitively, with a defined secondary key and blanks pinned to one end. Available in both the table and the grid. Not server-side, not in the URL. |
 | Upload and versioning (23) | 6 | 3 | 14 | Single and multi-file upload, an immutable version chain, an audit trail, and the type proposed at upload rather than assumed. No folder upload, no checksums, no virus scanning, no check-out. |
-| Cross-cutting (6) | 2 | 2 | 2 | Every state change is audited. Dates, sizes and counts render in the reader's locale — except audit-trail timestamps, see below. Strings are still hard-coded English; nothing is cancellable. |
+| Cross-cutting (6) | 3 | 2 | 1 | Every state change is audited, and a permission-reduced list states how many items it withheld. Dates, sizes and counts render in the reader's locale — except audit-trail timestamps, see below. Strings are still hard-coded English; nothing is cancellable. |
 | Dossier management — user (20) | 0 | 0 | 20 | No dossier concept in the data model. |
 | Dossier management — admin (24) | 0 | 0 | 24 | No dossier types, no file plan. |
-| Permissions and roles (24) | 0 | 0 | 24 | One user, no access control. |
+| Permissions and roles (24) | 12 | 0 | 12 | Rule-based and driven by metadata: grants and denies over predicates, deny outranks grant, roles read-only from the directory. Approve, edit and upload are all resolved against the rules. No rule editor, no logical delete, no metadata-field administration. |
 | Bulk download (16) | 0 | 0 | 16 | — |
 | Bulk operations (13) | 0 | 0 | 13 | No selection model. |
 | Retention policies (13) | 0 | 0 | 13 | — |
@@ -165,11 +165,45 @@ change in the grid, which has no column headers to carry `aria-sort`.
 | --- | ------- | --- |
 | `UPL-2` `UPL-3` `UPL-9` `UPL-10` `UPL-14` `UPL-19` | `UPL-1` (single and many, no folder) · `UPL-5` (oversized files are separated, but there is no real failure path) · `UPL-11` (a version records number, date and size — no author, checksum or comment) | `UPL-4` `UPL-6` `UPL-7` `UPL-8` `UPL-12` `UPL-13` `UPL-15` `UPL-16` `UPL-17` `UPL-18` `UPL-20` `UPL-21` `UPL-22` `UPL-23` |
 
-**Cross-cutting — 2 met, 2 partial, 2 not**
+**Permissions and roles — 12 met, 0 partial, 12 not**
+
+| Met | Not |
+| --- | --- |
+| `PRM-1` `PRM-2` `PRM-3` `PRM-4` `PRM-5` `PRM-6` `PRM-7` `PRM-8` `PRM-9` `PRM-10` `PRM-11` `PRM-17` | `PRM-12` `PRM-13` `PRM-14` `PRM-15` `PRM-16` `PRM-18` `PRM-19` `PRM-20` `PRM-21` `PRM-22` `PRM-23` `PRM-24` |
+
+What is met is the evaluation model and its reviewability: a rule is a named
+object with a description, an enabled flag, a type, an operation scope, roles
+and a predicate, and all seven are visible in the list without opening it
+(`PRM-4`). Deny outranks grant, and the interface says so rather than leaving
+it in the source (`PRM-6`). A disabled rule is visibly not enforced and stays
+in the list for review (`PRM-9`). A role that has left the directory is
+retained, marked, confers nothing, and the rules naming it are named back
+(`PRM-2`, `PRM-17`).
+
+What is not met divides in two. **`PRM-12` through `PRM-16` and `PRM-20`
+through `PRM-24` are administration** — a rule editor that shows a predicate's
+effect before saving, and the metadata-field management the predicates stand
+on. **`PRM-18` and `PRM-19` are logical deletion**: the `delete` operation
+exists in the vocabulary and one rule confers it, but nothing in the product
+deletes anything, so there is no recoverable state and no deleted view.
+
+One honest caveat about the role switcher in the app bar: `PRM-1` says roles
+come from the identity provider and are read-only here, so a product has no
+business changing one. It is openly a stand-in for signing in as somebody
+else, because a rule-based permission model that cannot be seen from more than
+one role cannot be reviewed at all.
+
+**Cross-cutting — 3 met, 2 partial, 1 not**
 
 | Met | Partial | Not |
 | --- | ------- | --- |
-| `XC-2` `XC-4` | `XC-3` (no destructive action exists to confirm; removing a tag is immediate) · `XC-5` (locale rendering done, string externalisation not) | `XC-1` `XC-6` |
+| `XC-1` `XC-2` `XC-4` | `XC-3` (no destructive action exists to confirm; removing a tag is immediate) · `XC-5` (locale rendering done, string externalisation not) | `XC-6` |
+
+`XC-1` moved with the permission model: a list shortened by permissions now
+states how many documents were withheld and points at the screen that says
+which rule decided. It is deliberately a note above the list rather than an
+empty state — the list is not empty, and a reader whose result set silently
+shrank concludes the document is gone.
 
 ### Corrected here, having been wrong rather than absent
 

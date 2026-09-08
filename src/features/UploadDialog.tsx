@@ -152,6 +152,14 @@ function toDocument(file: File, sizeMB: number, type: DocumentType): ManagedDocu
     id: `DOC-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2, 6)}`,
     title: file.name,
     type,
+    /*
+     * UPL-19 again: proposed, not demanded. The department follows from the
+     * type because that is true of every document in this fiction, and the
+     * classification starts at the safer of the two values. Both are corrected
+     * on the document's Edit tab by anyone holding `edit`.
+     */
+    department: type === 'Invoice' ? 'Finance' : 'Production',
+    classification: 'Internal',
     linkedRecord: 'Not linked yet',
     status: 'Pending',
     uploadDate: today(),

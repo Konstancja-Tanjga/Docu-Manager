@@ -17,6 +17,7 @@ import {
   useToast,
 } from '@bighat/ui';
 
+import { can, denyingRule, roleById } from '../data/permissions';
 import {
   DOCUMENT_TYPES,
   MAX_TAGS,
@@ -36,11 +37,13 @@ export function DocumentDialog({
   onClose,
   onChange,
   onUploadNewVersion,
+  currentRole,
 }: {
   document: ManagedDocument | null;
   onClose: () => void;
   onChange: (id: string, change: (doc: ManagedDocument) => ManagedDocument) => void;
   onUploadNewVersion: (id: string) => void;
+  currentRole: string;
 }) {
   const { notify } = useToast();
 
@@ -62,6 +65,25 @@ export function DocumentDialog({
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!doc) return null;
+
+  /*
+   * This is the whole point of the permission model. The blueprint said
+   * "approve has a screen but no authority", and it was right: anybody could
+   * press this. Now the operation is resolved against the rules for this
+   * document's metadata, and where it is refused the interface names the rule
+   * that refused it — an interface that says "you cannot" without saying which
+   * rule said so produces a support ticket.
+   */
+  const mayApprove = can(doc, currentRole, 'approve');
+  const mayEdit = can(doc, currentRole, 'edit');
+  const approveDeniedBy = denyingRule(doc, currentRole, 'approve');
+  const editDeniedBy = denyingRule(doc, currentRole, 'edit');
+  const roleName = roleById(currentRole)?.name ?? currentRole;
+
+  const refusal = (operation: string, deny: ReturnType<typeof denyingRule>) =>
+    deny
+      ? `Denied by ${deny.id} ${deny.name}. Deny outranks grant.`
+      : `No rule grants ${roleName} ${operation} on this document.`;
 
   function setStatus(status: DocumentStatus) {
     onChange(doc!.id, (current) => ({
@@ -135,6 +157,8 @@ export function DocumentDialog({
                               size="sm"
                               variant="secondary"
                               tone={status === 'Rejected' ? 'critical' : undefined}
+                              disabled={!mayApprove}
+                              title={mayApprove ? undefined : refusal('approve', approveDeniedBy)}
                               onClick={() => setStatus(status)}
                             >
                               Mark {status.toLowerCase()}
@@ -161,6 +185,14 @@ export function DocumentDialog({
                       value: doc.description || 'No description yet. Add one from the Edit tab.',
                       wide: true,
                     },
+                    {
+                      term: 'Your access',
+                      // Colour is never the carrier here: the sentence is.
+                      value: mayApprove
+                        ? `${roleName} may approve or reject this document.`
+                        : refusal('approve', approveDeniedBy),
+                      wide: true,
+                    },
                   ]}
                 />
 
@@ -175,12 +207,27 @@ export function DocumentDialog({
         </TabPanel>
 
         <TabPanel id="edit">
-          {/*
+          {!mayEdit ? (
+            /*
+              Refused as a whole rather than as eight disabled controls. A form
+              the reader can neither fill nor understand the refusal of is
+              worse than no form, so this names the rule instead.
+            */
+            <div className="dm-tabbody">
+              <StateBlock
+                state="error"
+                scope="section"
+                title="This role cannot edit metadata"
+                description={refusal('edit', editDeniedBy)}
+              />
+            </div>
+          ) : (
+          /*
             The only tab whose content is unbounded *and* has a primary action.
             Adding the type Select pushed "Save changes" past the fold, so the
             fields scroll and the action is pinned beneath them — a form that
             hides its own submit button is worse than a form that scrolls.
-          */}
+          */
           <div className="dm-tabbody dm-tabbody--form">
             <div className="dm-tabbody__scroll">
               <ScrollArea ariaLabel="Edit this document" maxHeight="100%" fade={false}>
@@ -292,6 +339,7 @@ export function DocumentDialog({
               </Button>
             </div>
           </div>
+          )}
         </TabPanel>
 
         <TabPanel id="versions">

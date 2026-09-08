@@ -12,6 +12,7 @@ import {
   type Column,
 } from '@bighat/ui';
 
+import { partitionByRead, roleById } from '../data/permissions';
 import {
   DEFAULT_SORT,
   NO_FILTERS,
@@ -77,20 +78,29 @@ export function Documents({
   onFiltersChange,
   onOpenDocument,
   onUpload,
+  currentRole,
 }: {
   documents: ManagedDocument[];
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   onOpenDocument: (id: string) => void;
   onUpload: () => void;
+  currentRole: string;
 }) {
   const [view, setView] = useState('grid');
   // SRT-5: the default is deliberate — the newest upload is what a reader
   // coming to a document library is looking for.
   const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
 
-  const tags = uniqueTags(documents);
-  const filtered = sortDocuments(applyFilters(documents, filters), sort);
+  /*
+   * Permissions run *before* the filters, because a document the reader may not
+   * read is not a filter result they narrowed — it is not theirs to narrow.
+   * `withheld` is the count XC-1 requires the interface to state.
+   */
+  const { visible, withheld } = partitionByRead(documents, currentRole);
+
+  const tags = uniqueTags(visible);
+  const filtered = sortDocuments(applyFilters(visible, filters), sort);
   const filtering = filtersAreActive(filters);
   const sortValue = `${sort.key}:${sort.direction}`;
 
@@ -177,7 +187,7 @@ export function Documents({
           {/* FLT-7: matches against the total, so a filtered screen says what
               it is hiding rather than just how much is left. */}
           <span className="dm-count">
-            ({formatCount(filtered.length)} of {formatCount(documents.length)})
+            ({formatCount(filtered.length)} of {formatCount(visible.length)})
           </span>
         </h1>
 
@@ -256,6 +266,27 @@ export function Documents({
           )}
         </Toolbar>
       </div>
+
+      {withheld > 0 && (
+        /*
+          XC-1: where permissions reduce a result set, the interface must say
+          how many items were withheld. A silently shortened list is a
+          correctness bug, not a security feature — the reader concludes the
+          document is gone and files a ticket.
+        */
+        <div className="dm-note dm-note--withheld">
+          <p className="dm-note__title">
+            {withheld === 1
+              ? 'One document is withheld from this role'
+              : `${formatCount(withheld)} documents are withheld from this role`}
+          </p>
+          <p className="dm-note__body">
+            Not shown because no rule grants {roleById(currentRole)?.name ?? currentRole} read
+            access to them, or a deny rule removes it. The Permissions screen says which rule
+            decides.
+          </p>
+        </div>
+      )}
 
       {/*
         SRT-4: a sort change must be announced. The table's headers carry

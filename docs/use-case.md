@@ -9,8 +9,8 @@ system**, and what happens at the places where the system runs out.
 | | |
 | --- | --- |
 | **Role** | Designer and developer |
-| **Scope** | 168 requirements, 4 screens, 1 design system |
-| **Chapters done** | 7 of 13 |
+| **Scope** | 168 requirements, 5 screens, 1 design system |
+| **Chapters done** | 8 of 13 |
 | **Status** | Prototype. Design system round trip closed |
 
 ## How to read this
@@ -92,15 +92,15 @@ about why design happens before implementation rather than after it.
 
 ---
 
-### 05 · Personas and roles `to write`
+### 05 · Roles and content permissions `done`
 
 | | |
 | --- | --- |
-| **What it is** | The document controller, the administrator, and the reader who may only retrieve. |
-| **Why it exists** | `PRM` decides access by what a document *is* rather than where it sits, so the roles are a data model question before they are a persona question. |
-| **What to look at** | That the prototype has exactly one user and no access control, which is why every approve action in it is a button with no rule behind it. |
+| **What it is** | Five roles, seven rules, and the screen that makes them reviewable. Access is decided by a document's metadata, never by where it sits. |
+| **Why it exists** | The blueprint said *approve has a screen but no authority*, and it was right — anybody could press it. A permission model fails silently, so it needs a screen before it needs features. |
+| **What to look at** | That **deny outranks grant** and the interface says so rather than leaving it in the source. That a disabled rule stays visible and is marked as not enforced. That a role which left the directory is retained, marked, confers nothing — and the rules naming it are named back. And that a list shortened by permissions says how many documents it withheld. |
 
-`docs/case-study/05-personas.png`
+→ [`screens/permissions-rules-light.png`](screens/permissions-rules-light.png) · [`permissions-roles.png`](screens/permissions-roles.png) · [`permissions-withheld.png`](screens/permissions-withheld.png)
 
 ---
 

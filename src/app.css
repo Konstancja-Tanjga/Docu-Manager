@@ -223,6 +223,104 @@
   overflow-wrap: anywhere;
 }
 
+/* ── Identity and role ────────────────────────────────────────────── */
+
+.dm-identity {
+  display: flex;
+  align-items: end;
+  gap: var(--bh-gap-loose);
+}
+
+/*
+ * The role switcher is openly a stand-in for signing in as somebody else —
+ * PRM-1 says roles are read-only here — so it is sized down and sits beside
+ * the identity rather than looking like a product setting.
+ */
+.dm-rolepicker {
+  min-width: 180px;
+}
+
+@media (max-width: 900px) {
+  /* The app bar has no room for it; the Permissions screen still names the
+     acting role, so nothing is lost but the shortcut. */
+  .dm-rolepicker {
+    display: none;
+  }
+}
+
+/* ── Notes in the interface ───────────────────────────────────────── */
+
+/*
+ * A persistent explanatory statement — the resolution order of the permission
+ * rules, or the count of documents a role cannot see.
+ *
+ * Deliberately markup and not a component. `StateBlock` is for empty, loading
+ * and error, and this is none of the three; `Card`'s own `notFor` says a
+ * paragraph is "a border with extra steps" and it is right. The design system
+ * has no component for prose that has to stay on screen, which is a finding
+ * rather than a reason to bend one — recorded in the system's DS-GAPS.md.
+ */
+.dm-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bh-gap-hairline);
+  padding: var(--bh-padding-block) var(--bh-padding-inline);
+  border-left: 2px solid var(--bh-border-strong);
+  background: var(--bh-surface-sunken);
+  border-radius: var(--bh-radius-control);
+  font-family: var(--bh-font-family-sans);
+}
+
+.dm-note__title {
+  margin: 0;
+  color: var(--bh-text-primary);
+  font-size: var(--bh-text-size-caption);
+  font-weight: var(--bh-text-weight-emphasis);
+}
+
+.dm-note__body {
+  margin: 0;
+  color: var(--bh-text-secondary);
+  font-size: var(--bh-text-size-body);
+  line-height: var(--bh-text-leading-normal);
+}
+
+/* The withheld count is the one note that reports a restriction, so it takes
+   the selection mark rather than the neutral border. */
+.dm-note--withheld {
+  border-left-color: var(--bh-selection-mark);
+}
+
+/* ── Permission rules ─────────────────────────────────────────────── */
+
+.dm-rule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bh-gap-hairline);
+}
+
+.dm-rule__name {
+  color: var(--bh-text-primary);
+  font-weight: 600;
+}
+
+.dm-rule__note {
+  color: var(--bh-text-muted);
+  font-size: var(--bh-text-size-body);
+}
+
+.dm-rule__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--bh-gap-tight);
+}
+
+/* The predicate is the rule's actual effect, so it reads as data, not prose. */
+.dm-rule__predicate {
+  font-variant-numeric: tabular-nums;
+  color: var(--bh-text-primary);
+}
+
 /* ── Chip rows ────────────────────────────────────────────────────── */
 
 /* The chips themselves are the system's FilterChip and RemovableChip. All this

@@ -12,6 +12,19 @@ export type DocumentStatus = 'Approved' | 'Pending' | 'Rejected';
 export const DOCUMENT_TYPES = ['Invoice', 'Production Order'] as const;
 export type DocumentType = (typeof DOCUMENT_TYPES)[number];
 
+/*
+ * Two metadata fields the permission rules are written against.
+ *
+ * `PRM-8` requires predicates to reference fields *by definition*, never by a
+ * free-typed name, so the allowed values live here as closed sets rather than
+ * as strings scattered through the rules.
+ */
+export const DEPARTMENTS = ['Production', 'Finance', 'Maintenance'] as const;
+export type Department = (typeof DEPARTMENTS)[number];
+
+export const CLASSIFICATIONS = ['Internal', 'Confidential'] as const;
+export type Classification = (typeof CLASSIFICATIONS)[number];
+
 export type DocumentVersion = {
   version: number;
   date: string;
@@ -24,6 +37,8 @@ export type ManagedDocument = {
   type: DocumentType;
   linkedRecord: string;
   status: DocumentStatus;
+  department: Department;
+  classification: Classification;
   uploadDate: string;
   uploadedBy: string;
   fileSize: string;
@@ -86,6 +101,8 @@ const SEED: ManagedDocument[] = [
     type: 'Invoice',
     linkedRecord: 'Invoice #INV-250101',
     status: 'Approved',
+    department: 'Finance',
+    classification: 'Internal',
     uploadDate: '2025-01-15',
     uploadedBy: 'Maria López',
     fileSize: '3.8',
@@ -103,6 +120,8 @@ const SEED: ManagedDocument[] = [
     type: 'Production Order',
     linkedRecord: 'Production Order #PO-47892',
     status: 'Pending',
+    department: 'Production',
+    classification: 'Internal',
     uploadDate: '2025-01-20',
     uploadedBy: 'Maria López',
     fileSize: '1.2',
@@ -123,6 +142,8 @@ const SEED: ManagedDocument[] = [
     type: 'Invoice',
     linkedRecord: 'Invoice #INV-250202',
     status: 'Approved',
+    department: 'Finance',
+    classification: 'Confidential',
     uploadDate: '2025-01-22',
     uploadedBy: 'Maria López',
     fileSize: '4.1',
@@ -137,6 +158,8 @@ const SEED: ManagedDocument[] = [
     type: 'Production Order',
     linkedRecord: 'Production Order #PO-47915',
     status: 'Rejected',
+    department: 'Production',
+    classification: 'Internal',
     uploadDate: '2025-01-25',
     uploadedBy: 'Maria López',
     fileSize: '0.9',
@@ -151,6 +174,8 @@ const SEED: ManagedDocument[] = [
     type: 'Invoice',
     linkedRecord: 'Invoice #INV-250128',
     status: 'Pending',
+    department: 'Finance',
+    classification: 'Internal',
     uploadDate: '2025-01-28',
     uploadedBy: 'Maria López',
     fileSize: '2.7',
@@ -173,6 +198,8 @@ const SEED: ManagedDocument[] = [
     type: 'Production Order',
     linkedRecord: 'Production Order #PO-47988',
     status: 'Approved',
+    department: 'Production',
+    classification: 'Internal',
     uploadDate: '2025-02-01',
     uploadedBy: 'Maria López',
     fileSize: '1.5',
@@ -187,6 +214,8 @@ const SEED: ManagedDocument[] = [
     type: 'Invoice',
     linkedRecord: 'Invoice #INV-250203',
     status: 'Approved',
+    department: 'Finance',
+    classification: 'Confidential',
     uploadDate: '2025-02-03',
     uploadedBy: 'Maria López',
     fileSize: '5.2',
@@ -201,6 +230,8 @@ const SEED: ManagedDocument[] = [
     type: 'Production Order',
     linkedRecord: 'Production Order #PO-48012',
     status: 'Pending',
+    department: 'Production',
+    classification: 'Internal',
     uploadDate: '2025-02-05',
     uploadedBy: 'Maria López',
     fileSize: '2.1',
@@ -215,6 +246,8 @@ const SEED: ManagedDocument[] = [
     type: 'Invoice',
     linkedRecord: 'Invoice #INV-250210',
     status: 'Approved',
+    department: 'Maintenance',
+    classification: 'Internal',
     uploadDate: '2025-02-10',
     uploadedBy: 'Maria López',
     fileSize: '3.4',
@@ -229,6 +262,8 @@ const SEED: ManagedDocument[] = [
     type: 'Production Order',
     linkedRecord: 'Production Order #PO-48045',
     status: 'Approved',
+    department: 'Production',
+    classification: 'Confidential',
     uploadDate: '2025-02-12',
     uploadedBy: 'Maria López',
     fileSize: '0.8',
@@ -263,6 +298,8 @@ function isStoredLibrary(value: unknown): value is ManagedDocument[] {
       (doc) =>
         typeof doc?.id === 'string' &&
         typeof doc.title === 'string' &&
+        typeof doc.department === 'string' &&
+        typeof doc.classification === 'string' &&
         Array.isArray(doc.tags) &&
         Array.isArray(doc.versions) &&
         Array.isArray(doc.auditTrail),

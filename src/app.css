@@ -408,21 +408,29 @@
  * plain scrolling div cannot be scrolled without a pointer. The system owns
  * that problem; this only owns the height.
  *
- * The height is set to the tallest *bounded* tab, not the tallest tab. Info is
- * a bounded list of facts — status, type, uploaded, file, description — and
- * those five rows fit at seven control heights. Add a sixth fact and this needs
- * re-measuring; nothing will fail on its own.
+ * The rule this height was chosen by has since changed, and the comment is
+ * updated rather than left to describe a world that ended.
  *
- * Versions, Audit trail and Edit all grow without limit: versions accumulate,
- * the trail only ever gets longer, and the tag row wraps. No height fits them
- * all, and picking one to fit today's data would be a taller box that still
- * scrolls tomorrow. They scroll; Info, the tab the dialog opens on, does not —
- * except below a 616px-tall viewport, where the `dvh` cap below takes over.
+ * It used to be "the tallest *bounded* tab": Info was a fixed list of five
+ * facts and fit exactly at seven control heights, while Versions, Audit trail
+ * and Edit grew without limit. Then Info gained a type, three retention rows
+ * and what the acting role may do — 503px of content in a 308px box — so
+ * **no tab is bounded any more.**
  *
- * Sizing to Edit instead was tried and rejected: it made the dialog 611px. Edit
- * gained the type `Select` in the same change, so its 556px became 611px —
- * taller than the worst case before this rule existed, to save one tab a 16px
- * scroll.
+ * The height is therefore a compromise and not a derivation: tall enough that
+ * the facts a reader opens the dialog for are on screen, short enough that
+ * Audit trail with three entries is not 500px of nothing. Every tab scrolls
+ * when it has to.
+ *
+ * What replaced the old rule is the one that actually matters: **a tab with an
+ * action pins it.** Info and Edit both have one, both put their fields in a
+ * scroller and their action beneath it, and neither can hide its own primary
+ * control — which is what growing past the box did to Edit's "Save changes"
+ * and then to Info's "Upload new version".
+ *
+ * Sizing to fit the tallest tab was tried twice and rejected twice: at Edit's
+ * 611px, and again once Info reached 503px of content, which would have made
+ * the dialog roughly 740px to spare one tab a scroll.
  *
  * `dvh` caps it on a short viewport — the reader's window is the one thing
  * allowed to change this height. Never the content.

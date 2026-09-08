@@ -18,7 +18,7 @@ import {
 } from '@bighat/ui';
 
 import { can, denyingRule, roleById } from '../data/permissions';
-import { RetentionSummary } from '../pages/Retention';
+import { retentionItems } from '../pages/Retention';
 import {
   DOCUMENT_TYPES,
   MAX_TAGS,
@@ -135,8 +135,14 @@ export function DocumentDialog({
         </TabList>
 
         <TabPanel id="info">
-          <div className="dm-tabbody">
-            <ScrollArea ariaLabel="Document information" maxHeight="100%" fade={false}>
+          {/*
+            Info gained rows — a type, retention, and what this role may do —
+            so it outgrew the box and pushed its only action out of sight. Same
+            answer as Edit: the facts scroll, the action is pinned.
+          */}
+          <div className="dm-tabbody dm-tabbody--form">
+            <div className="dm-tabbody__scroll">
+              <ScrollArea ariaLabel="Document information" maxHeight="100%" fade={false}>
               <div className="dm-stack">
                 {/*
                  * `DescriptionList` is the system's term/value pair, so the three
@@ -186,6 +192,7 @@ export function DocumentDialog({
                       value: doc.description || 'No description yet. Add one from the Edit tab.',
                       wide: true,
                     },
+                    ...retentionItems(doc),
                     {
                       term: 'Your access',
                       // Colour is never the carrier here: the sentence is.
@@ -197,20 +204,16 @@ export function DocumentDialog({
                   ]}
                 />
 
-                {/*
-                  RET-10: a document under retention says so in place, with the
-                  date and the policy — not on a separate screen a reader has
-                  to know exists.
-                */}
-                <RetentionSummary doc={doc} />
 
-                <div className="dm-row">
-                  <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
-                    Upload new version
-                  </Button>
                 </div>
-              </div>
-            </ScrollArea>
+              </ScrollArea>
+            </div>
+
+            <div className="dm-tabbody__actions">
+              <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
+                Upload new version
+              </Button>
+            </div>
           </div>
         </TabPanel>
 

@@ -1,10 +1,4 @@
-import {
-  Badge,
-  DescriptionList,
-  StateBlock,
-  Table,
-  type Column,
-} from '@bighat/ui';
+import { Badge, StateBlock, Table, type Column } from '@bighat/ui';
 
 import {
   RETENTION_POLICIES,
@@ -209,24 +203,30 @@ export function Retention({
   );
 }
 
-export function RetentionSummary({ doc }: { doc: ManagedDocument }) {
+/**
+ * RET-10 as rows for the document's own list, not a second list beside it.
+ *
+ * It was a `DescriptionList` of its own, which gave the Info tab two lists,
+ * two sets of padding, and 503px of content in a 308px box — enough to push
+ * the tab's only action below the fold.
+ */
+export function retentionItems(doc: ManagedDocument) {
   const { state, policy, expiresOn, reason } = retentionOf(doc);
-  return (
-    <DescriptionList
-      ariaLabel="Retention"
-      items={[
-        { term: 'Retention', value: state, wide: false },
-        {
-          term: 'Policy',
-          value: policy ? `${policy.name} v${policy.version} · ${periodLabel(policy)} from ${policy.startEvent.toLowerCase()}` : 'No policy applies to this type',
-          wide: true,
-        },
-        {
-          term: state === 'On legal hold' ? 'Would expire' : 'Expires',
-          value: expiresOn ? formatDate(expiresOn) : (reason ?? 'Not calculated'),
-          wide: true,
-        },
-      ]}
-    />
-  );
+  return [
+    { term: 'Retention', value: state },
+    {
+      term: 'Policy',
+      value: policy
+        ? `${policy.name} v${policy.version} · ${periodLabel(policy)} from ${policy.startEvent.toLowerCase()}`
+        : 'No policy applies to this type',
+      wide: true,
+    },
+    {
+      // RET-13: a hold suspends the effect, not the date — so the label changes
+      // and the date stays.
+      term: state === 'On legal hold' ? 'Would expire' : 'Expires',
+      value: expiresOn ? formatDate(expiresOn) : (reason ?? 'Not calculated'),
+      wide: true,
+    },
+  ];
 }

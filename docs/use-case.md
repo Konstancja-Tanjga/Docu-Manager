@@ -176,6 +176,34 @@ about why design happens before implementation rather than after it.
 
 → [`screens/retention-policies.png`](screens/retention-policies.png) · [`bulk-selection.png`](screens/bulk-selection.png) · [`bulk-per-item-results.png`](screens/bulk-per-item-results.png)
 
+![Retention policies. The retired one still reports what it governs, because retiring releases nothing](screens/retention-policies.png)
+
+*Retention policies. The retired one still reports what it governs, because retiring releases nothing*
+
+![Per item, never per batch — and one exclusion named before the export runs](screens/bulk-per-item-results.png)
+
+*Per item, never per batch — and one exclusion named before the export runs*
+
+![Document library, grid view — every control here comes from the design system](screens/documents-grid-light.png)
+
+*Document library, grid view — every control here comes from the design system*
+
+![The document dialog: one height across all four tabs, and a pinned action that cannot scroll away](screens/t-info.png)
+
+*The document dialog: one height across all four tabs, and a pinned action that cannot scroll away*
+
+![Two of the three components this project put into the design system: Textarea and RemovableChip](screens/t-edit.png)
+
+*Two of the three components this project put into the design system: `Textarea` and `RemovableChip`*
+
+![The upload dialog. The limits are stated before they can be hit](screens/upload-dark.png)
+
+*The upload dialog. The limits are stated before they can be hit*
+
+![The permissions screen: all seven of a rule’s attributes visible without opening it](screens/permissions-rules-light.png)
+
+*The permissions screen: all seven of a rule’s attributes visible without opening it*
+
 ---
 
 ### 12 · What this does not settle `to write`

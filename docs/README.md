@@ -167,6 +167,14 @@ upstream — is the part of the process this repository exists to show.
 | Document detail, `Tabs` + `DescriptionList` | Editing, `Textarea` + `RemovableChip` |
 | ![Narrow](screens/narrow-2-open.png) | ![Versions](screens/t-versions.png) |
 | Below 900px, navigation as an overlay | Version history |
+| ![Permission rules](screens/permissions-rules-light.png) | ![Roles](screens/permissions-roles.png) |
+| Content permission rules — deny outranks grant, and it says so | Roles, read-only from the directory, with what each rule confers |
+| ![Withheld](screens/permissions-withheld.png) | ![Refusal](screens/detail-refusal-named.png) |
+| A list shortened by permissions says how many it withheld | A refusal that names the rule which refused |
+| ![Retention](screens/retention-policies.png) | ![Legal hold](screens/detail-legal-hold.png) |
+| Retention policies, versioned, with a lifecycle | A legal hold suspends expiry without moving the date |
+| ![Bulk selection](screens/bulk-selection.png) | ![Per item](screens/bulk-per-item-results.png) |
+| Selection, with *select all filtered* as a separate action | Results per item, and every exclusion named before the export |
 
 ---
 

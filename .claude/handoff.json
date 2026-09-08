@@ -1,6 +1,6 @@
 {
   "designSystem": {
-    "package": "@bighatpoland/ui",
+    "package": "@bighat/ui",
     "tokenPrefix": "--bh-",
     "primitiveNames": [
       "color.",
@@ -8,8 +8,8 @@
       "radius.",
       "fontSize."
     ],
-    "inventory": "node_modules/@bighatpoland/ui/components.json",
-    "rules": "node_modules/@bighatpoland/ui/agent/SKILL.md"
+    "inventory": "node_modules/@bighat/ui/spec/components",
+    "rules": "node_modules/@bighat/ui/agent/SKILL.md"
   },
   "commands": {
     "install": "npm ci",
@@ -17,8 +17,8 @@
     "lint": null,
     "test": null,
     "build": "npm run build",
-    "dev": "npm run dev -- --port 5180 --strictPort",
-    "devUrl": "http://localhost:5180"
+    "dev": "npm run dev -- --port 5185 --strictPort",
+    "devUrl": "http://localhost:5185"
   },
   "routes": [
     {
@@ -46,6 +46,7 @@
     "routes": "There is no router. Navigation is React state in App.tsx (page: 'dashboard' | 'documents'), so '/' is the only address and the Documents screen, the upload dialog and the document detail dialog are reachable only by clicking. Those flows are walked by hand and reported per flow.",
     "themes": "The design system selects dark with document.documentElement.setAttribute('data-theme','dark') and falls back to prefers-color-scheme for users who never touch a toggle. There is no query parameter, so both themes are captured by emulating prefers-color-scheme, which is the path most users actually take.",
     "commands": "The project has no lint and no test script. Gates depending on them report 'not checked', never 'pass'.",
-    "devUrl": "The dev command pins --port 5180 --strictPort deliberately. Vite silently falls back to the next free port when its default is taken, and a devUrl pointing at the default then screenshots whatever else is running: this run captured twelve screenshots of an unrelated site on 5173 before that was caught. strictPort makes the collision an error instead of a wrong screenshot."
+    "devUrl": "The dev command pins --port 5185 --strictPort deliberately. Vite silently falls back to the next free port when its default is taken, and a devUrl pointing at the default then screenshots whatever else is running: an earlier run captured twelve screenshots of an unrelated site on 5173 before that was caught. strictPort makes the collision an error instead of a wrong screenshot. The port moved from 5180 to 5185 because a different project on this machine had already claimed 5180 with the same strictPort trick \u2014 and answered on it, which is exactly the failure this note is about.",
+    "designSystem": "Upgraded from @bighatpoland/ui 2.0.0 to @bighat/ui 4.x. The package was renamed, components.json no longer ships, and the machine-readable inventory is now one contract per component under spec/components. All six components this prototype used to keep locally are in the system."
   }
 }

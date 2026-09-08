@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AppBar,
   AppShell,
+  Avatar,
   Button,
   Input,
   NavItem,
@@ -9,9 +10,8 @@ import {
   SidePanel,
   SkipLink,
   useToast,
-} from '@bighatpoland/ui';
+} from '@bighat/ui';
 
-import { Avatar } from './components/Avatar';
 import { DocumentDialog } from './features/DocumentDialog';
 import { UploadDialog } from './features/UploadDialog';
 import { Dashboard } from './pages/Dashboard';
@@ -38,6 +38,8 @@ export function App() {
 
   const [documents, setDocuments] = useState<ManagedDocument[]>(() => loadDocuments());
   const [page, setPage] = useState<Page>('dashboard');
+  /** Below 900px the shell's panels leave the grid; this is how they come back. */
+  const [navOpen, setNavOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
 
   /** `null` = closed. A document id = that document's detail dialog. */
@@ -65,6 +67,9 @@ export function App() {
 
   function goTo(next: Page) {
     setPage(next);
+    // On a narrow screen the nav is an overlay covering the content the reader
+    // just asked for, so choosing a section has to close it.
+    setNavOpen(false);
     // Filters belong to the library screen; leaving it clears them, which is
     // what the prototype did and what stops a stale filter from making the
     // screen look empty on return.
@@ -94,10 +99,28 @@ export function App() {
       <SkipLink />
 
       <AppShell
+        navOpen={navOpen}
+        onNavToggle={() => setNavOpen((open) => !open)}
         header={
           <AppBar
             brand={
               <span className="dm-brand">
+                {/*
+                 * The shell renders the scrim that closes the nav, but opening
+                 * it is the product's job — there is no leading slot on AppBar,
+                 * and a menu button belongs beside the wordmark anyway. Hidden
+                 * above 900px, where the sidebar is on screen already.
+                 */}
+                <span className="dm-navtoggle">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setNavOpen((open) => !open)}
+                    aria-expanded={navOpen}
+                  >
+                    {navOpen ? 'Close menu' : 'Menu'}
+                  </Button>
+                </span>
                 <span className="dm-brand__mark" aria-hidden="true">
                   D
                 </span>
@@ -125,7 +148,10 @@ export function App() {
             }
             actions={
               <span className="dm-user">
-                <Avatar name={CURRENT_USER} />
+                {/* `decorative`, because the name is rendered beside it. An
+                    avatar with an accessible name next to the same name spoken
+                    again is the duplicate every audit finds. */}
+                <Avatar name={CURRENT_USER} size="sm" decorative />
                 {CURRENT_USER}
               </span>
             }

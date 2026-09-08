@@ -1,4 +1,4 @@
-import { Badge, Button, Card, StateBlock } from '@bighatpoland/ui';
+import { Badge, Button, Card, StateBlock } from '@bighat/ui';
 
 import { StatTile } from '../components/StatTile';
 import { CURRENT_USER, statusTone, type ManagedDocument } from '../data/documents';

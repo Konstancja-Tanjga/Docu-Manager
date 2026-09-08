@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, Dialog, StateBlock } from '@bighatpoland/ui';
+import { Button, Dialog, FileDropzone, RemovableChip, StateBlock } from '@bighat/ui';
 
-import { FileDropzone } from '../components/FileDropzone';
 import {
   CURRENT_USER,
   MAX_FILE_SIZE_MB,
@@ -69,29 +68,31 @@ export function UploadDialog({
     >
       <div className="dm-stack">
         <FileDropzone
+          label={newVersionOf ? 'Replacement file' : 'Files to upload'}
+          description={`Any file type, up to ${MAX_FILE_SIZE_MB} MB each.${
+            newVersionOf ? ' One file — a new version replaces one file.' : ''
+          }`}
+          multiple={!newVersionOf}
           onFiles={(incoming) => setFiles(newVersionOf ? incoming.slice(0, 1) : incoming)}
-          hint={`Any file type • up to ${MAX_FILE_SIZE_MB} MB each`}
         />
 
         {queued.length > 0 && (
-          <ul className="dm-filelist">
+          /*
+           * One chip per queued file. `RemovableChip` names its own remove
+           * button after the file it removes, which the hand-rolled row of
+           * ghost buttons could only do by repeating the filename in a label
+           * nobody maintained.
+           */
+          <div className="dm-chips" role="group" aria-label="Files queued for upload">
             {queued.map((entry, index) => (
-              <li className="dm-filelist__item" key={`${entry.file.name}-${index}`}>
-                <span className="dm-filelist__name dm-grow">
-                  {entry.file.name}
-                  <span className="dm-nowrap"> · {entry.sizeMB.toFixed(1)} MB</span>
-                </span>
-                <Button
-                  variant="ghost"
-                  tone="critical"
-                  size="sm"
-                  onClick={() => setFiles((current) => current.filter((_, i) => i !== index))}
-                >
-                  Remove
-                </Button>
-              </li>
+              <RemovableChip
+                key={`${entry.file.name}-${index}`}
+                label={`${entry.file.name} · ${entry.sizeMB.toFixed(1)} MB`}
+                removeLabel={`Remove ${entry.file.name} from this upload`}
+                onRemove={() => setFiles((current) => current.filter((_, i) => i !== index))}
+              />
             ))}
-          </ul>
+          </div>
         )}
 
         {tooBig.length > 0 && (
@@ -101,7 +102,7 @@ export function UploadDialog({
            */
           <StateBlock
             state="error"
-            density="inline"
+            scope="inline"
             title={
               tooBig.length === 1
                 ? 'One file is too large to upload'

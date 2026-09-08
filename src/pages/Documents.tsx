@@ -13,19 +13,63 @@ import {
 } from '@bighat/ui';
 
 import {
+  DEFAULT_SORT,
   NO_FILTERS,
+  SORT_KEYS,
   applyFilters,
   filtersAreActive,
+  formatCount,
+  formatDate,
+  formatSize,
+  naturalDirection,
+  sortDocuments,
   statusTone,
   uniqueTags,
   type Filters,
   type ManagedDocument,
+  type Sort,
+  type SortKey,
 } from '../data/documents';
+
 
 const VIEWS = [
   { value: 'grid', label: 'Grid' },
   { value: 'list', label: 'List' },
 ];
+
+/*
+ * SRT-14: where the list is not a table there are no column headers, so the
+ * same ordering has to be offered as an explicit control. Key and direction are
+ * encoded in one value because they are one decision to the reader — "newest
+ * first" is not two choices.
+ *
+ * Every key carries *both* directions, and that is not symmetry for its own
+ * sake. The table's headers toggle direction on a second click, so a reader can
+ * arrive here holding any key/direction pair; a pair with no matching option
+ * left the `Select` rendering blank while the grid was genuinely sorted.
+ */
+const SORT_LABELS: Record<SortKey, { ascending: string; descending: string }> = {
+  uploadDate: { descending: 'Uploaded — newest first', ascending: 'Uploaded — oldest first' },
+  title: { ascending: 'Document — A to Z', descending: 'Document — Z to A' },
+  type: { ascending: 'Type — A to Z', descending: 'Type — Z to A' },
+  // Not "A to Z": the order is Pending, Rejected, Approved. SRT-3 calls the
+  // alphabetical order of a status meaningless, and it is right.
+  status: { ascending: 'Status — needs attention first', descending: 'Status — settled first' },
+  fileSize: { descending: 'Size — largest first', ascending: 'Size — smallest first' },
+};
+
+const SORT_OPTIONS = SORT_KEYS.flatMap((key) =>
+  // Natural direction first, so the option a reader most likely wants is the
+  // one they see before opening the list.
+  ([naturalDirection(key), naturalDirection(key) === 'ascending' ? 'descending' : 'ascending'] as const).map(
+    (direction) => ({ value: `${key}:${direction}`, label: SORT_LABELS[key][direction] }),
+  ),
+);
+
+/** The design system's `Table` reports `key` as a plain string. */
+function isSortKey(key: string): key is SortKey {
+  return (SORT_KEYS as readonly string[]).includes(key);
+}
 
 export function Documents({
   documents,
@@ -41,14 +85,14 @@ export function Documents({
   onUpload: () => void;
 }) {
   const [view, setView] = useState('grid');
-  const [sort, setSort] = useState<{ key: string; direction: 'ascending' | 'descending' }>({
-    key: 'uploadDate',
-    direction: 'descending',
-  });
+  // SRT-5: the default is deliberate — the newest upload is what a reader
+  // coming to a document library is looking for.
+  const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
 
   const tags = uniqueTags(documents);
-  const filtered = sortRows(applyFilters(documents, filters), sort);
+  const filtered = sortDocuments(applyFilters(documents, filters), sort);
   const filtering = filtersAreActive(filters);
+  const sortValue = `${sort.key}:${sort.direction}`;
 
   const columns: Column<ManagedDocument>[] = [
     {
@@ -66,7 +110,20 @@ export function Documents({
       sortable: true,
       cell: (doc) => <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>,
     },
-    { key: 'uploadDate', header: 'Uploaded', sortable: true, cell: (doc) => doc.uploadDate },
+    {
+      key: 'fileSize',
+      header: 'Size',
+      sortable: true,
+      align: 'end',
+      width: '100px',
+      cell: (doc) => formatSize(doc.fileSize),
+    },
+    {
+      key: 'uploadDate',
+      header: 'Uploaded',
+      sortable: true,
+      cell: (doc) => formatDate(doc.uploadDate),
+    },
     {
       key: 'open',
       header: 'Actions',
@@ -116,7 +173,12 @@ export function Documents({
     <div className="dm-page">
       <div className="dm-page__header">
         <h1 className="dm-page__title">
-          Document library <span className="dm-count">({filtered.length})</span>
+          Document library{' '}
+          {/* FLT-7: matches against the total, so a filtered screen says what
+              it is hiding rather than just how much is left. */}
+          <span className="dm-count">
+            ({formatCount(filtered.length)} of {formatCount(documents.length)})
+          </span>
         </h1>
 
         {/*
@@ -160,8 +222,49 @@ export function Documents({
               onFiltersChange({ ...filters, type: event.target.value as Filters['type'] })
             }
           />
+
+          {/*
+            SRT-14. Only in the grid: the table's own column headers are already
+            the explicit control there, and two controls driving one sort is a
+            way to show the reader a contradiction.
+          */}
+          {view === 'grid' && (
+            <Select
+              label="Sort by"
+              value={sortValue}
+              options={SORT_OPTIONS}
+              onChange={(event) => {
+                // Narrowed rather than asserted: the option values are built
+                // from SORT_KEYS above, so an unknown key here would mean the
+                // list and the type had drifted apart.
+                const [key, direction] = event.target.value.split(':');
+                if (!key || !isSortKey(key)) return;
+                setSort({ key, direction: direction as Sort['direction'] });
+              }}
+            />
+          )}
+
+          {/*
+            FLT-6 wants the individually removable controls *and* one way out of
+            all of them. The chips and the type select are the former; this is
+            the latter, and it only exists while there is something to clear.
+          */}
+          {filtering && (
+            <Button variant="secondary" size="sm" onClick={() => onFiltersChange(NO_FILTERS)}>
+              Clear filters
+            </Button>
+          )}
         </Toolbar>
       </div>
+
+      {/*
+        SRT-4: a sort change must be announced. The table's headers carry
+        `aria-sort`, so they announce themselves; reordering the grid moves
+        cards silently, and this is the grid's equivalent.
+      */}
+      <p aria-live="polite" className="bh-visually-hidden">
+        {view === 'grid' ? `Sorted by ${SORT_LABELS[sort.key][sort.direction]}` : ''}
+      </p>
 
       {tags.length > 0 && (
         <div className="dm-chips" role="group" aria-label="Filter by tag">
@@ -191,7 +294,21 @@ export function Documents({
           rows={filtered}
           rowKey={(doc) => doc.id}
           sort={sort}
-          onSortChange={setSort}
+          onSortChange={(next) => {
+            if (!isSortKey(next.key)) return;
+            /*
+             * SRT-3. The design system's `Table` starts every newly activated
+             * column ascending, which gives oldest-first on a first click of
+             * Uploaded. Toggling the column already sorted keeps the
+             * direction the reader asked for; changing column applies that
+             * column's own default.
+             */
+            setSort(
+              next.key === sort.key
+                ? { key: next.key, direction: next.direction }
+                : { key: next.key, direction: naturalDirection(next.key) },
+            );
+          }}
           state={filtered.length === 0 ? emptyState : undefined}
         />
       ) : filtered.length === 0 ? (
@@ -216,7 +333,7 @@ export function Documents({
                 <span className="dm-doccard__title">{doc.title}</span>
                 <span className="dm-doccard__meta">{doc.linkedRecord}</span>
                 <span className="dm-doccard__footer">
-                  <span>{doc.uploadDate}</span>
+                  <span>{formatDate(doc.uploadDate)}</span>
                   <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>
                 </span>
               </span>
@@ -226,16 +343,4 @@ export function Documents({
       )}
     </div>
   );
-}
-
-function sortRows(
-  rows: ManagedDocument[],
-  sort: { key: string; direction: 'ascending' | 'descending' },
-): ManagedDocument[] {
-  const factor = sort.direction === 'ascending' ? 1 : -1;
-  return [...rows].sort((a, b) => {
-    const left = String(a[sort.key as keyof ManagedDocument] ?? '');
-    const right = String(b[sort.key as keyof ManagedDocument] ?? '');
-    return left.localeCompare(right) * factor;
-  });
 }

@@ -8,8 +8,15 @@ The point of this repository is not the document management. It is what a real
 screen looks like when every control comes from a design system, and what
 happens at the places where the system runs out.
 
-Three things live here:
+**New here? Start with [docs/](docs/) — the design walkthrough.** It follows the
+work in order: the competition audit, what it changed about the requirements,
+the flow drawn before it was built (and the requirement that drawing corrected),
+and the design-system round trip.
 
+Four things live here:
+
+- **[docs/](docs/)** — the process: research, concept, the design canvases, and
+  screenshots of the result.
 - **[requirements/](requirements/)** — 168 functional requirements for a
   document management system.
 - **[Competition audit/](Competition%20audit/)** — what four established DMS

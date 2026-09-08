@@ -1,0 +1,70 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1240,
+      "h": 1500,
+      "title": "Audit result"
+    },
+    {
+      "file": "Comparison.dc.html",
+      "x": 1400,
+      "y": 0,
+      "w": 1400,
+      "h": 1180,
+      "title": "Capability comparison"
+    },
+    {
+      "file": "PermissionRules.dc.html",
+      "x": 0,
+      "y": 1720,
+      "w": 1240,
+      "h": 1560,
+      "title": "Permission rules"
+    },
+    {
+      "file": "Retention.dc.html",
+      "x": 1400,
+      "y": 1720,
+      "w": 1240,
+      "h": 1420,
+      "title": "Retention policies"
+    },
+    {
+      "file": "BulkOperations.dc.html",
+      "x": 2800,
+      "y": 1720,
+      "w": 1240,
+      "h": 1480,
+      "title": "Bulk operations"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "how-to-use",
+      "x": 2960,
+      "y": 60,
+      "w": 460,
+      "text": "USING THIS FOR A USE CASE WRITE-UP\n\nThe three screens on the bottom row each pair one of our designs with numbered callouts, and every callout carries the requirement id it satisfies. That pairing is what a use case needs: the screen, the behaviour, and the requirement the behaviour is answering.\n\nThe top row is the argument — what the market confirmed, what we were missing, and where we deliberately differ.\n\nSource for every claim is linked in the repository at 'Competition audit/README.md'."
+    },
+    {
+      "id": "no-vendor-shots",
+      "x": 2960,
+      "y": 420,
+      "w": 460,
+      "text": "WHY THERE ARE NO COMPETITOR SCREENSHOTS\n\nVendor interfaces are third-party copyrighted material. Reproducing them here carries real risk and adds nothing: every finding rests on a documented statement, not on a rendering.\n\nThe screens shown are our own designs."
+    },
+    {
+      "id": "row-label",
+      "x": 0,
+      "y": 1620,
+      "w": 620,
+      "text": "Reference screens — our designs, annotated with the requirements each one specifies."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

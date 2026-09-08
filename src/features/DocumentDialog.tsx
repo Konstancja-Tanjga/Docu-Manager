@@ -6,6 +6,8 @@ import {
   Dialog,
   Input,
   RemovableChip,
+  ScrollArea,
+  Select,
   StateBlock,
   Tab,
   TabList,
@@ -16,11 +18,14 @@ import {
 } from '@bighat/ui';
 
 import {
-  CURRENT_USER,
+  DOCUMENT_TYPES,
   MAX_TAGS,
-  stamp,
+  auditEntry,
+  formatDate,
+  formatSize,
   statusTone,
   type DocumentStatus,
+  type DocumentType,
   type ManagedDocument,
 } from '../data/documents';
 
@@ -62,14 +67,19 @@ export function DocumentDialog({
     onChange(doc!.id, (current) => ({
       ...current,
       status,
-      auditTrail: [`${stamp()} – Status changed to ${status} by ${CURRENT_USER}`, ...current.auditTrail],
+      auditTrail: [auditEntry(`Status changed to ${status}`), ...current.auditTrail],
     }));
     notify({ tone: 'success', title: `Marked as ${status.toLowerCase()}` });
   }
 
   function addTag() {
     const tag = newTag.trim().toLowerCase();
-    if (!tag) return;
+    if (!tag) {
+      // The Add tag button is disabled on empty input, but Enter is not, so a
+      // whitespace-only Enter used to do nothing and say nothing.
+      setTagError('Enter a tag name.');
+      return;
+    }
 
     if (doc!.tags.includes(tag)) {
       setTagError('That tag is already on this document.');
@@ -80,7 +90,11 @@ export function DocumentDialog({
       return;
     }
 
-    onChange(doc!.id, (current) => ({ ...current, tags: [...current.tags, tag] }));
+    onChange(doc!.id, (current) => ({
+      ...current,
+      tags: [...current.tags, tag],
+      auditTrail: [auditEntry(`Tag "${tag}" added`), ...current.auditTrail],
+    }));
     setNewTag('');
     setTagError(undefined);
   }
@@ -98,122 +112,178 @@ export function DocumentDialog({
         </TabList>
 
         <TabPanel id="info">
-          <div className="dm-stack">
-            {/*
-             * `DescriptionList` is the system's term/value pair, so the three
-             * facts about this document are one list rather than three
-             * hand-rolled label-and-paragraph blocks. The status row keeps its
-             * actions in the value: they act on the term beside them.
-             */}
-            <DescriptionList
-              ariaLabel="Document details"
-              items={[
-                {
-                  term: 'Status',
-                  value: (
-                    <span className="dm-row">
-                      <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>
-                      {STATUSES.filter((status) => status !== doc.status).map((status) => (
-                        <Button
-                          key={status}
-                          size="sm"
-                          variant="secondary"
-                          tone={status === 'Rejected' ? 'critical' : undefined}
-                          onClick={() => setStatus(status)}
-                        >
-                          Mark {status.toLowerCase()}
-                        </Button>
-                      ))}
-                    </span>
-                  ),
-                  wide: true,
-                },
-                {
-                  term: 'Uploaded',
-                  value: `${doc.uploadDate} by ${doc.uploadedBy}`,
-                },
-                {
-                  term: 'File',
-                  value: `${doc.fileSize} MB · version ${doc.versions.length}`,
-                },
-                {
-                  term: 'Description',
-                  value: doc.description || 'No description yet. Add one from the Edit tab.',
-                  wide: true,
-                },
-              ]}
-            />
+          <div className="dm-tabbody">
+            <ScrollArea ariaLabel="Document information" maxHeight="100%" fade={false}>
+              <div className="dm-stack">
+                {/*
+                 * `DescriptionList` is the system's term/value pair, so the three
+                 * facts about this document are one list rather than three
+                 * hand-rolled label-and-paragraph blocks. The status row keeps its
+                 * actions in the value: they act on the term beside them.
+                 */}
+                <DescriptionList
+                  ariaLabel="Document details"
+                  items={[
+                    {
+                      term: 'Status',
+                      value: (
+                        <span className="dm-row">
+                          <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>
+                          {STATUSES.filter((status) => status !== doc.status).map((status) => (
+                            <Button
+                              key={status}
+                              size="sm"
+                              variant="secondary"
+                              tone={status === 'Rejected' ? 'critical' : undefined}
+                              onClick={() => setStatus(status)}
+                            >
+                              Mark {status.toLowerCase()}
+                            </Button>
+                          ))}
+                        </span>
+                      ),
+                      wide: true,
+                    },
+                    {
+                      term: 'Type',
+                      value: doc.type,
+                    },
+                    {
+                      term: 'Uploaded',
+                      value: `${formatDate(doc.uploadDate)} by ${doc.uploadedBy}`,
+                    },
+                    {
+                      term: 'File',
+                      value: `${formatSize(doc.fileSize)} · version ${doc.versions.length}`,
+                    },
+                    {
+                      term: 'Description',
+                      value: doc.description || 'No description yet. Add one from the Edit tab.',
+                      wide: true,
+                    },
+                  ]}
+                />
 
-            <div className="dm-row">
-              <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
-                Upload new version
-              </Button>
-            </div>
+                <div className="dm-row">
+                  <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
+                    Upload new version
+                  </Button>
+                </div>
+              </div>
+            </ScrollArea>
           </div>
         </TabPanel>
 
         <TabPanel id="edit">
-          <div className="dm-stack">
-            <Textarea
-              label="Description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              description="What this document is for, in a line or two."
-              rows={4}
-            />
+          {/*
+            The only tab whose content is unbounded *and* has a primary action.
+            Adding the type Select pushed "Save changes" past the fold, so the
+            fields scroll and the action is pinned beneath them — a form that
+            hides its own submit button is worse than a form that scrolls.
+          */}
+          <div className="dm-tabbody dm-tabbody--form">
+            <div className="dm-tabbody__scroll">
+              <ScrollArea ariaLabel="Edit this document" maxHeight="100%" fade={false}>
+              <div className="dm-stack">
+                {/*
+                  UPL-19. The type used to be fixed at upload and unchangeable
+                  afterwards, so a production order filed as an invoice stayed
+                  one. Changing it is a state change, so it is audited.
+                */}
+                <Select
+                  label="Document type"
+                  value={doc.type}
+                  options={DOCUMENT_TYPES.map((value) => ({ value, label: value }))}
+                  onChange={(event) => {
+                    const next = event.target.value as DocumentType;
+                    if (next === doc.type) return;
+                    onChange(doc.id, (current) => ({
+                      ...current,
+                      type: next,
+                      auditTrail: [
+                        auditEntry(`Type changed from ${current.type} to ${next}`),
+                        ...current.auditTrail,
+                      ],
+                    }));
+                    notify({ tone: 'success', title: `Type changed to ${next.toLowerCase()}` });
+                  }}
+                />
 
-            <div className="dm-stack">
-              <p className="dm-label">
-                Tags ({doc.tags.length}/{MAX_TAGS})
-              </p>
+                <Textarea
+                  label="Description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  description="What this document is for, in a line or two."
+                  rows={4}
+                />
 
-              {doc.tags.length > 0 && (
-                <div className="dm-chips" role="group" aria-label="Tags on this document">
-                  {doc.tags.map((tag) => (
-                    <RemovableChip
-                      key={tag}
-                      label={tag}
-                      // "Remove finance" reads like removing the department.
-                      removeLabel={`Remove tag ${tag}`}
-                      onRemove={() =>
-                        onChange(doc.id, (current) => ({
-                          ...current,
-                          tags: current.tags.filter((existing) => existing !== tag),
-                        }))
-                      }
-                    />
-                  ))}
+                <div className="dm-stack">
+                  <p className="dm-label">
+                    Tags ({doc.tags.length}/{MAX_TAGS})
+                  </p>
+
+                  {doc.tags.length > 0 && (
+                    <div className="dm-chips" role="group" aria-label="Tags on this document">
+                      {doc.tags.map((tag) => (
+                        <RemovableChip
+                          key={tag}
+                          label={tag}
+                          // "Remove finance" reads like removing the department.
+                          removeLabel={`Remove tag ${tag}`}
+                          onRemove={() =>
+                            onChange(doc.id, (current) => ({
+                              ...current,
+                              tags: current.tags.filter((existing) => existing !== tag),
+                              auditTrail: [
+                                auditEntry(`Tag "${tag}" removed`),
+                                ...current.auditTrail,
+                              ],
+                            }))
+                          }
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="dm-row dm-row--fields">
+                    <span className="dm-grow">
+                      <Input
+                        label="New tag"
+                        value={newTag}
+                        error={tagError}
+                        onChange={(event) => {
+                          setNewTag(event.target.value);
+                          setTagError(undefined);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            addTag();
+                          }
+                        }}
+                      />
+                    </span>
+                    <Button variant="secondary" onClick={addTag} disabled={!newTag.trim()}>
+                      Add tag
+                    </Button>
+                  </div>
                 </div>
-              )}
-
-              <div className="dm-row dm-row--fields">
-                <span className="dm-grow">
-                  <Input
-                    label="New tag"
-                    value={newTag}
-                    error={tagError}
-                    onChange={(event) => {
-                      setNewTag(event.target.value);
-                      setTagError(undefined);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        addTag();
-                      }
-                    }}
-                  />
-                </span>
-                <Button variant="secondary" onClick={addTag} disabled={!newTag.trim()}>
-                  Add tag
-                </Button>
               </div>
+              </ScrollArea>
             </div>
 
-            <div className="dm-row dm-row--between">
+            <div className="dm-tabbody__actions">
               <Button
                 onClick={() => {
-                  onChange(doc.id, (current) => ({ ...current, description: description.trim() }));
+                  const next = description.trim();
+                  onChange(doc.id, (current) => ({
+                    ...current,
+                    description: next,
+                    auditTrail: [
+                      auditEntry(current.description ? 'Description edited' : 'Description added'),
+                      ...current.auditTrail,
+                    ],
+                  }));
                   notify({ tone: 'success', title: 'Changes saved' });
                 }}
                 disabled={description.trim() === doc.description}
@@ -225,34 +295,42 @@ export function DocumentDialog({
         </TabPanel>
 
         <TabPanel id="versions">
-          <ol className="dm-trail">
-            {[...doc.versions].reverse().map((version) => (
-              <li className="dm-trail__item" key={version.version}>
-                <span className="dm-trail__title">Version {version.version}</span>
-                <br />
-                {version.date} · {version.size}
-              </li>
-            ))}
-          </ol>
+          <div className="dm-tabbody">
+            <ScrollArea ariaLabel="Version history" maxHeight="100%" fade={false}>
+              <ol className="dm-trail">
+                {[...doc.versions].reverse().map((version) => (
+                  <li className="dm-trail__item" key={version.version}>
+                    <span className="dm-trail__title">Version {version.version}</span>
+                    <br />
+                    {formatDate(version.date)} · {formatSize(version.size)}
+                  </li>
+                ))}
+              </ol>
+            </ScrollArea>
+          </div>
         </TabPanel>
 
         <TabPanel id="audit">
-          {doc.auditTrail.length === 0 ? (
-            <StateBlock
-              state="empty"
-              scope="inline"
-              title="Nothing recorded yet"
-              description="Uploads, approvals and new versions will appear here."
-            />
-          ) : (
-            <ol className="dm-trail">
-              {doc.auditTrail.map((entry, index) => (
-                <li className="dm-trail__item" key={`${entry}-${index}`}>
-                  {entry}
-                </li>
-              ))}
-            </ol>
-          )}
+          <div className="dm-tabbody">
+            <ScrollArea ariaLabel="Audit trail" maxHeight="100%" fade={false}>
+              {doc.auditTrail.length === 0 ? (
+                <StateBlock
+                  state="empty"
+                  scope="inline"
+                  title="Nothing recorded yet"
+                  description="Uploads, approvals and new versions will appear here."
+                />
+              ) : (
+                <ol className="dm-trail">
+                  {doc.auditTrail.map((entry, index) => (
+                    <li className="dm-trail__item" key={`${entry}-${index}`}>
+                      {entry}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </ScrollArea>
+          </div>
         </TabPanel>
       </Tabs>
     </Dialog>

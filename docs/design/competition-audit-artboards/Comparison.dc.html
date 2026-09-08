@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root{
+      --surface:#fff; --sunken:#f7f8f9; --ink:#14181c; --t2:#39414a; --t3:#59636f;
+      --bd:#dfe3e7; --bd2:#6b7683; --pri:#3563e9; --link:#2148c9;
+      --ok-bg:#ecfdf5; --ok-fg:#0a573b; --ok-bd:#a7f3d0;
+      --wa-bg:#fffbeb; --wa-fg:#7c4a10; --wa-bd:#fde68a;
+      --in-bg:#eef4ff; --in-fg:#1a39a1; --in-bd:#bcd0ff;
+      --cr-bg:#fef2f2; --cr-fg:#a31f24; --cr-bd:#fecaca;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--surface);color:var(--ink);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;}
+    a{color:var(--link);} a:hover{color:var(--pri);}
+    .pad{padding:40px;}
+    .eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);font-weight:650;}
+    h1{margin:6px 0 0;font-size:30px;font-weight:700;letter-spacing:-.025em;text-wrap:balance;}
+    h2{margin:0;font-size:17px;font-weight:650;letter-spacing:-.012em;}
+    p{margin:8px 0 0;color:var(--t2);max-width:68ch;}
+    .lede{font-size:15px;color:var(--t2);margin-top:10px;max-width:74ch;}
+    .row{display:flex;gap:20px;}
+    .col{display:flex;flex-direction:column;gap:20px;}
+    .card{border:1px solid var(--bd);border-radius:10px;padding:20px;background:var(--surface);}
+    .tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:9999px;
+      font-size:11px;font-weight:650;border:1px solid;}
+    .ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-bd);}
+    .wa{background:var(--wa-bg);color:var(--wa-fg);border-color:var(--wa-bd);}
+    .in{background:var(--in-bg);color:var(--in-fg);border-color:var(--in-bd);}
+    .cr{background:var(--cr-bg);color:var(--cr-fg);border-color:var(--cr-bd);}
+    .quote{border-left:3px solid var(--bd2);padding:2px 0 2px 14px;color:var(--t2);
+      font-style:italic;margin-top:10px;max-width:66ch;}
+    .req{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+      background:var(--in-bg);color:var(--in-fg);padding:1px 6px;border-radius:4px;
+      border:1px solid var(--in-bd);white-space:nowrap;}
+    .shot{width:100%;border:1px solid var(--bd);border-radius:8px;display:block;}
+    .callout{display:flex;gap:12px;align-items:flex-start;}
+    .pin{flex:0 0 24px;height:24px;border-radius:9999px;background:var(--ink);color:#fff;
+      display:grid;place-items:center;font-size:12px;font-weight:700;}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+    .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    th{text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);
+      font-weight:650;padding:8px 10px;border-bottom:1px solid var(--bd);}
+    td{padding:9px 10px;border-bottom:1px solid var(--bd);color:var(--t2);}
+    td.k{color:var(--ink);font-weight:550;}
+    .num{font-variant-numeric:tabular-nums;}
+
+  </style>
+</helmet>
+<div class="pad col" style="gap:24px">
+  <div>
+    <div class="eyebrow">Competition audit · capability comparison</div>
+    <h1 style="font-size:26px">Where each system stands</h1>
+    <p class="lede" style="font-size:14px">Read from administrator documentation and published service limits. Vendor marketing pages produced nothing checkable and were not used. Systems are described by category rather than named here; the repository document names them and links every source.</p>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <table>
+      <tr>
+        <th style="width:26%">Capability</th>
+        <th>German ECM</th>
+        <th>Metadata-driven DMS</th>
+        <th>Compliance DMS</th>
+        <th>Collaboration platform</th>
+        <th style="width:110px">Ours</th>
+      </tr>
+      <tr><td class="k">One document in many dossiers, no copy</td><td>Yes — n:m, explicit</td><td>Yes — via metadata</td><td>Partial</td><td>Via links</td><td><span class="req">DOS-U-6</span></td></tr><tr><td class="k">Automatic filing by metadata rule</td><td>Yes</td><td>Yes — dynamic views</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td><span class="req">DOS-U-17</span></td></tr><tr><td class="k">File plan above dossier types</td><td>Yes</td><td>n/a — no folders</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td><span class="req">DOS-A-23</span></td></tr><tr><td class="k">Registers inside a dossier</td><td>Yes</td><td>n/a</td><td>Yes</td><td>Folders</td><td><span class="req">DOS-U-5</span></td></tr><tr><td class="k">Check-out / check-in</td><td>Yes</td><td>Yes — also blocks rollback</td><td>Yes</td><td>Yes</td><td><span class="req">UPL-15</span></td></tr><tr><td class="k">Restore creates a new version</td><td style="color:var(--t3)">—</td><td>Yes — documented</td><td style="color:var(--t3)">—</td><td>Yes</td><td><span class="req">UPL-12</span></td></tr><tr><td class="k">Text extraction and OCR</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="req">UPL-21</span></td></tr><tr><td class="k">Metadata-driven permissions</td><td>Partial</td><td>Yes</td><td>Partial</td><td>Location-driven</td><td><span class="req">PRM-4</span></td></tr><tr><td class="k">Roles from an identity provider</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td><td><span class="req">PRM-1</span></td></tr><tr><td class="k">Retention on expiry</td><td>Periods</td><td>Yes</td><td style="color:var(--cr-fg);font-weight:600">Deletes automatically</td><td>Labels</td><td><span class="req">RET-12</span></td></tr><tr><td class="k">Audit trail covering reads</td><td>Yes</td><td>Yes</td><td>Yes — explicit</td><td>Yes</td><td><span class="req">XC-2</span></td></tr><tr><td class="k">Bulk export manifest</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td style="color:var(--cr-fg);font-weight:600">Flagged missing</td><td style="color:var(--t3)">—</td><td><span class="req">BDL-8</span></td></tr><tr><td class="k">Reporting withheld items</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td style="color:var(--t3)">—</td><td><span class="req">XC-1</span></td></tr><tr><td class="k">Filter and sort across the whole set</td><td>Yes</td><td>Yes</td><td>Yes</td><td style="color:var(--cr-fg);font-weight:600">Capped at 5,000</td><td><span class="req">FLT-14</span></td></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Numbers worth borrowing</h2>
+      <p style="font-size:13px">Our bulk-download requirements demand a threshold above which an export becomes an asynchronous job, without naming one. These are published limits, not invented ones.</p>
+      <table style="margin-top:12px">
+        <tr><th>Limit</th><th>Value</th></tr>
+        <tr><td class="k">Export request cap, compliance DMS cloud</td><td class="num">10 GB · 50,000 documents</td></tr>
+        <tr><td class="k">Auto-generated ZIP cap, collaboration platform</td><td class="num">20 GB</td></tr>
+        <tr><td class="k">View threshold before filter and sort break</td><td class="num">5,000 items, fixed</td></tr>
+      </table>
+    </div>
+    <div class="card" style="background:var(--sunken)">
+      <h2>How to read this</h2>
+      <p style="font-size:13px"><span class="tag ok">green</span> in the last column means the market builds it the way we specified — the strongest evidence available that a requirement is right.</p>
+      <p style="font-size:13px"><span class="tag wa">amber</span> means every established system has it and we had not written it. All three are now written.</p>
+      <p style="font-size:13px"><span class="tag in">blue</span> means we deliberately differ. Each of those is a position to defend in review, not an oversight — and the red cells in the table are what we are differing <i>from</i>.</p>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

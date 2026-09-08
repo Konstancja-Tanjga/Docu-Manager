@@ -235,6 +235,64 @@
 
 /* ── Dialog content ───────────────────────────────────────────────── */
 
+/*
+ * One height for every tab in the document dialog.
+ *
+ * The dialog used to be sized by whichever tab was open — 294px on Audit trail,
+ * 556px on Edit — so switching tabs resized the window under the pointer and
+ * moved the tab you were about to click. The height is fixed here instead, and
+ * the content scrolls inside it.
+ *
+ * It is a `ScrollArea` rather than `overflow: auto` because Chrome and Safari
+ * only make an overflowing container focusable when it has a tabindex, so a
+ * plain scrolling div cannot be scrolled without a pointer. The system owns
+ * that problem; this only owns the height.
+ *
+ * The height is set to the tallest *bounded* tab, not the tallest tab. Info is
+ * a bounded list of facts — status, type, uploaded, file, description — and
+ * those five rows fit at seven control heights. Add a sixth fact and this needs
+ * re-measuring; nothing will fail on its own.
+ *
+ * Versions, Audit trail and Edit all grow without limit: versions accumulate,
+ * the trail only ever gets longer, and the tag row wraps. No height fits them
+ * all, and picking one to fit today's data would be a taller box that still
+ * scrolls tomorrow. They scroll; Info, the tab the dialog opens on, does not —
+ * except below a 616px-tall viewport, where the `dvh` cap below takes over.
+ *
+ * Sizing to Edit instead was tried and rejected: it made the dialog 611px. Edit
+ * gained the type `Select` in the same change, so its 556px became 611px —
+ * taller than the worst case before this rule existed, to save one tab a 16px
+ * scroll.
+ *
+ * `dvh` caps it on a short viewport — the reader's window is the one thing
+ * allowed to change this height. Never the content.
+ */
+.dm-tabbody {
+  height: calc(var(--bh-control-lg) * 7);
+  max-height: 50dvh;
+}
+
+/*
+ * Edit is the one tab with a primary action, and it is the one tab guaranteed
+ * to overflow. So the fields scroll and the action does not: a form that hides
+ * its own submit button behind a scroll is worse than a form that scrolls.
+ */
+.dm-tabbody--form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bh-gap-normal);
+}
+
+/* `min-height: 0` or the flex item refuses to shrink below its content. */
+.dm-tabbody__scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+.dm-tabbody__actions {
+  flex: none;
+}
+
 .dm-stack {
   display: flex;
   flex-direction: column;

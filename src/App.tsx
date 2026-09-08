@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppBar,
   AppShell,
@@ -21,7 +21,7 @@ import {
   NO_FILTERS,
   loadDocuments,
   saveDocuments,
-  stamp,
+  auditEntry,
   type Filters,
   type ManagedDocument,
 } from './data/documents';
@@ -36,7 +36,11 @@ const PAGES: { id: Page; label: string; screen: string }[] = [
 export function App() {
   const { notify } = useToast();
 
-  const [documents, setDocuments] = useState<ManagedDocument[]>(() => loadDocuments());
+  // Read once. `reseeded` says the stored library was unreadable and has been
+  // replaced by the sample data — which is indistinguishable from a first visit
+  // unless somebody says so.
+  const [stored] = useState(() => loadDocuments());
+  const [documents, setDocuments] = useState<ManagedDocument[]>(stored.documents);
   const [page, setPage] = useState<Page>('dashboard');
   /** Below 900px the shell's panels leave the grid; this is how they come back. */
   const [navOpen, setNavOpen] = useState(false);
@@ -51,7 +55,36 @@ export function App() {
    */
   const [upload, setUpload] = useState<'new' | string | null>(null);
 
-  useEffect(() => saveDocuments(documents), [documents]);
+  /*
+   * `localStorage` is the whole backend, and it can refuse: quota, private
+   * browsing, a locked-down kiosk. The session keeps working either way, but a
+   * "Changes saved" toast over a write that threw is the product asserting
+   * something untrue — and the reader finds out when the reload is empty.
+   *
+   * Warned once, not per keystroke: the condition does not clear itself, so
+   * repeating it on every edit would bury the edits it is warning about.
+   */
+  const warnedAboutSaving = useRef(false);
+  useEffect(() => {
+    if (saveDocuments(documents)) return;
+    if (warnedAboutSaving.current) return;
+    warnedAboutSaving.current = true;
+    notify({
+      tone: 'critical',
+      title: 'Changes cannot be saved',
+      description:
+        'They are visible in this session but will be lost on reload. Check whether this browser allows local storage.',
+    });
+  }, [documents, notify]);
+
+  useEffect(() => {
+    if (!stored.reseeded) return;
+    notify({
+      tone: 'critical',
+      title: 'Saved documents could not be read',
+      description: 'The library has been reset to the sample data.',
+    });
+  }, [stored.reseeded, notify]);
 
   const openDoc = useMemo(
     () => documents.find((doc) => doc.id === openDocId) ?? null,
@@ -88,7 +121,7 @@ export function App() {
         ...doc.versions,
         { version: doc.versions.length + 1, date: new Date().toISOString().slice(0, 10), size: `${size} MB` },
       ],
-      auditTrail: [`${stamp()} – New version uploaded by ${CURRENT_USER}`, ...doc.auditTrail],
+      auditTrail: [auditEntry('New version uploaded'), ...doc.auditTrail],
     }));
   }
 

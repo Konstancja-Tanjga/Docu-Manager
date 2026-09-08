@@ -8,10 +8,14 @@ The point of this repository is not the document management. It is what a real
 screen looks like when every control comes from a design system, and what
 happens at the places where the system runs out.
 
-**New here? Start with [docs/](docs/) — the design walkthrough.** It follows the
-work in order: the competition audit, what it changed about the requirements,
-the flow drawn before it was built (and the requirement that drawing corrected),
-and the design-system round trip.
+**New here? Start with [the use case](docs/use-case.md).** Thirteen chapters in
+the order the project was built — what the market already does, what that made
+us write down, the flow drawn before it was built, and the design-system round
+trip. Each chapter says what it is, why it exists, and what to look at.
+
+From there: [the user journey and service blueprint](docs/user-journey.md) for
+how a document actually moves through this, and [docs/](docs/) for the process
+walkthrough with the design canvases and screenshots.
 
 Four things live here:
 

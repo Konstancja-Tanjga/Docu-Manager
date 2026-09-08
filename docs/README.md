@@ -8,6 +8,13 @@ be wrong.
 Read in this order. Every claim links to the artefact it came from, and the
 artefacts are in this repository — not in a chat log.
 
+Two companion documents sit beside this one:
+**[use-case.md](use-case.md)** is the chapter map — the same project as thirteen
+numbered chapters, each with a status, so you can see what exists and what does
+not. **[user-journey.md](user-journey.md)** is the journey and service
+blueprint: six phases, the line of interaction, the line of visibility, and each
+risk paired with the decision that answers it.
+
 ---
 
 ## 1 · Research — what four established systems actually do

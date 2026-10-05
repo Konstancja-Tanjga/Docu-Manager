@@ -43,6 +43,16 @@ system**, and building them there was the point of the exercise:
 it is a local composition of the system's `Card`. Promote it only if a second
 product wants the same tile.
 
+## Version and theme
+
+On `@bighat/ui` 6.0.3. Light and dark are the token stylesheet's job: never
+write a rule for one theme. If something looks wrong in dark, the token is
+wrong for its role. The theme choice is `src/theme.ts` plus the pre-paint
+script in `index.html`. They share a storage key, so change both or neither.
+
+What the system still lacks for this product is in
+`docs/design-system-6-gaps.md`. Check it before building something local.
+
 ## Things that will bite
 
 - **A `Card` with `onClick` is a `<button>`.** Everything inside it must be
@@ -61,6 +71,11 @@ product wants the same tile.
   the prop.
 - **No `className` on a system component.** Not on any of the 45. Wrap it in a
   `dm-*` element if the layout needs one, and put the rule in `app.css`.
+- **No font-size or weight literals either.** `--bh-text-size-*` and
+  `--bh-text-weight-*`. Headings are `title` (page) and `heading` (section).
+- **Sentence case, hairlines, `fill-hover` wells.** No tracked capitals and no
+  grey 1px boxes. That is the 6.0 look, and the system's own components
+  already follow it.
 - **No colour literals in `app.css`.** If no semantic token fits, that is a
   missing role in the design system. Say so and stop — do not reach for a hex.
   A selected or current thing is `--bh-selection-*`, not `--bh-status-info-*`.

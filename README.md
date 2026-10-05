@@ -107,7 +107,7 @@ rule is generalised in [`FLT-8`](requirements/filter.md).
 | Section navigation | `SidePanel` + `NavList` / `NavItem` |
 | Filter and view controls | `Toolbar` + `Select` + `SegmentedControl` |
 | Dashboard stat tiles | `Card` (via local `StatTile`) |
-| Recent activity rows | `Card` + `Badge` |
+| Recent activity rows | `List` (inset) + `ListItem` + `Badge` |
 | Document cards | `Card` + `Badge` |
 | Document table, sorting | `Table` |
 | Document status | `Badge` |
@@ -117,7 +117,9 @@ rule is generalised in [`FLT-8`](requirements/filter.md).
 | Document detail sections | `Tabs` + `DescriptionList` |
 | Description editing | `Textarea` |
 | Choosing files | `FileDropzone` |
-| Identity in the app bar | `Avatar` |
+| Identity in the app bar | `UserProfile` (the acting role is its secondary line) |
+| Version history, audit trail | `List` + `ListItem` |
+| Role switcher, theme choice | `Select`, `SegmentedControl` in the `SidePanel` footer |
 | Every action | `Button` |
 | Upload, document detail | `Dialog` |
 | Save, approve, upload confirmation | `Toast` via `useToast()` |
@@ -191,6 +193,51 @@ Things this integration surfaced, all fixed upstream:
   `FilterChip` adds a check mark, and reserves its box when the chip is off so
   a wrapped row of chips does not reflow when one is pressed.
 
+## Light and dark
+
+Both themes come from the design system's token stylesheet. Nothing in
+[app.css](src/app.css) names a theme. The choice is **Light / Dark / System**,
+a `SegmentedControl` in the side panel footer, so it can be reached at every
+width.
+
+- **System** removes the `data-theme` attribute, so the tokens follow
+  `prefers-color-scheme` and keep following it if the OS setting changes.
+  Light and Dark set the attribute.
+- The choice is kept in `localStorage` and applied by a small script in
+  [index.html](index.html) **before the first paint**, so a dark choice does
+  not flash light while the bundle loads. [src/theme.ts](src/theme.ts) keeps it
+  in step after that. The two must agree on the key and the values.
+- `?theme=light` or `?theme=dark` in the URL overrides the stored choice
+  without saving it, so a screenshot run can ask for a theme.
+
+The design system has no theme API beyond the attribute, so all of this is
+local. That is the second item in the gap report below.
+
+## Upgrading from 4.x to 6.0
+
+Pinned to `9c26ecb` on the design system's `main` (6.0.3). It typechecked with
+no code changes: neither breaking change (the actions trigger on `Table` rows,
+the move control on `BoardCard`) touches a component this app uses. What
+changed is the look and what the system now covers:
+
+- **The visual direction.** Height instead of grey boxes, hairlines, a
+  translucent `fill.hover`, pill buttons, and sentence case where there were
+  tracked capitals. `app.css` follows it, and every font size and weight in it
+  is now a token. The 4.x file had eleven rem literals.
+- **Hand-built markup replaced by components.** `UserProfile` for identity,
+  `List` for recent activity, version history and the audit trail, and a
+  `Button` instead of a hand-styled link-button in the Retention table.
+- **Named row actions.** Each "Open" button is named after its row ("Open
+  Invoice_…pdf"), as the system's own row-actions trigger is since 6.0.
+- **The role switcher moved** from the app bar to the side panel footer. In
+  the app bar its label touched the bar's edge, and below 900px it was hidden.
+
+**What is still missing** is listed in
+[docs/design-system-6-gaps.md](docs/design-system-6-gaps.md): eight items, the
+largest being a callout component (`.dm-note` appears in five places) and
+theme switching. That file also corrects one claim made in 4.x: `.dm-note` was
+never recorded in the system's `DS-GAPS.md`, though a comment said it was.
+
 ## Upgrading from 2.0.0 to 4.x
 
 Worth recording, because the package changed identity as well as version:
@@ -252,11 +299,10 @@ rewrite: every path serves `index.html`, because navigation here is React state
 rather than routes, so a refresh on any address has to land on the app rather
 than a 404.
 
-**Set the production branch deliberately.** The design-system upgrade and
-everything built on it live on `bighat-4` until that work is merged. Deploying
-`main` builds and serves — but it serves the *pre-upgrade* prototype against
-`@bighatpoland/ui@2.0.0`, with no permissions, no retention and no bulk
-operations. That is a working app, and it is not this one.
+**Deploy from `main`.** It carries whatever has been merged: the 4.x build
+since PR #4, and the 6.0 rebuild with light and dark mode once its PR merges.
+A preview of a branch before that is a Vercel preview deployment, not a
+change to the production branch.
 
 The design system is a git dependency, so `npm install` clones and builds it
 from source rather than fetching a tarball. Two consequences worth knowing:

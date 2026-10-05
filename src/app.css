@@ -12,7 +12,24 @@
  * are now in the design system, so what is left is page layout and the
  * inside of a Card — product arrangement, which is what a product stylesheet
  * should be.
+ *
+ * Rebuilt for @bighat/ui 6. The system moved from 1px grey boxes to height,
+ * hairlines and translucent fills (4.2–4.11), and from tracked capitals to
+ * sentence case. This file follows: lines are `border-hairline`, wells are
+ * `fill-hover`, and every font size and weight is a token — the 4.x version
+ * still had eleven rem literals, which rule 2 never allowed.
+ *
+ * Nothing here names a theme. Dark mode is the token stylesheet's job, keyed
+ * on `data-theme` (see src/theme.ts); a rule that only works in one theme is
+ * a rule using the wrong token.
  */
+
+/* The shell fills the viewport, so the body's default margin would show the
+   page behind it as a frame — white, in dark mode. */
+body {
+  margin: 0;
+  background: var(--bh-surface-sunken);
+}
 
 /* ── Page scaffolding ─────────────────────────────────────────────── */
 
@@ -33,8 +50,9 @@
 
 .dm-page__title {
   margin: 0;
-  font-size: 1.75rem;
-  line-height: 1.2;
+  font-size: var(--bh-text-size-title);
+  font-weight: var(--bh-text-weight-heading);
+  line-height: var(--bh-text-leading-tight);
   color: var(--bh-text-primary);
 }
 
@@ -53,7 +71,8 @@
 
 .dm-section__title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--bh-text-size-heading);
+  font-weight: var(--bh-text-weight-heading);
   color: var(--bh-text-primary);
 }
 
@@ -81,7 +100,7 @@
   display: flex;
   align-items: center;
   gap: var(--bh-gap-snug);
-  font-weight: 600;
+  font-weight: var(--bh-text-weight-heading);
   color: var(--bh-text-primary);
 }
 
@@ -93,16 +112,8 @@
   border-radius: var(--bh-radius-control);
   background: var(--bh-action-primary-bg);
   color: var(--bh-action-primary-fg);
-  font-weight: 700;
-}
-
-.dm-user {
-  display: flex;
-  align-items: center;
-  gap: var(--bh-gap-snug);
-  color: var(--bh-text-secondary);
-  font-size: 0.875rem;
-  white-space: nowrap;
+  font-weight: var(--bh-text-weight-heading);
+  box-shadow: var(--bh-elevation-control);
 }
 
 /* ── Dashboard stats ──────────────────────────────────────────────── */
@@ -115,15 +126,17 @@
 
 .dm-stat__label {
   margin: 0;
-  font-size: 0.8125rem;
-  color: var(--bh-text-muted);
+  font-size: var(--bh-text-size-caption);
+  color: var(--bh-text-secondary);
 }
 
+/* The largest step on the scale. It was 2.5rem, off the scale; a count the
+   reader has to read is never set smaller than body, and title is the top. */
 .dm-stat__value {
   margin: var(--bh-gap-tight) 0 0;
-  font-size: 2.5rem;
-  line-height: 1.1;
-  font-weight: 600;
+  font-size: var(--bh-text-size-title);
+  line-height: var(--bh-text-leading-tight);
+  font-weight: var(--bh-text-weight-heading);
   color: var(--bh-text-primary);
   /* Keeps the four tiles' digits from shifting width against each other. */
   font-variant-numeric: tabular-nums;
@@ -146,21 +159,22 @@
   width: 100%;
 }
 
+/* A well of `fill-hover`, like the system's Toolbar and SegmentedControl
+   track, instead of the opaque sunken surface: it reads in both themes, and
+   on a raised card in dark mode `surface-sunken` was darker than the card. */
 .dm-doccard__thumb {
   display: grid;
   place-items: center;
   height: 120px;
-  border-radius: var(--bh-radius-control);
-  background: var(--bh-surface-sunken);
-  color: var(--bh-text-muted);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  border-radius: var(--bh-radius-field);
+  background: var(--bh-fill-hover);
+  color: var(--bh-text-secondary);
+  font-size: var(--bh-text-size-body);
 }
 
 .dm-doccard__title {
   margin: 0;
-  font-weight: 600;
+  font-weight: var(--bh-text-weight-heading);
   color: var(--bh-text-primary);
   /* Filenames are long and unbreakable; two lines then ellipsis. */
   display: -webkit-box;
@@ -177,8 +191,8 @@
 .dm-doccard__meta {
   display: block;
   margin: 0;
-  font-size: 0.8125rem;
-  color: var(--bh-text-muted);
+  font-size: var(--bh-text-size-body);
+  color: var(--bh-text-secondary);
 }
 
 .dm-doccard__footer {
@@ -188,64 +202,9 @@
   gap: var(--bh-gap-snug);
   margin-top: auto;
   padding-top: var(--bh-gap-snug);
-  border-top: 1px solid var(--bh-border-subtle);
-  font-size: 0.8125rem;
-  color: var(--bh-text-muted);
-}
-
-/* ── Recent activity list ─────────────────────────────────────────── */
-
-.dm-activity {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bh-gap-snug);
-}
-
-.dm-activity__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--bh-gap-normal);
-  width: 100%;
-  text-align: start;
-}
-
-.dm-activity__text {
-  display: block;
-  min-width: 0;
-}
-
-.dm-activity__title {
-  display: block;
-  margin: 0;
-  font-weight: 600;
-  color: var(--bh-text-primary);
-  overflow-wrap: anywhere;
-}
-
-/* ── Identity and role ────────────────────────────────────────────── */
-
-.dm-identity {
-  display: flex;
-  align-items: end;
-  gap: var(--bh-gap-loose);
-}
-
-/*
- * The role switcher is openly a stand-in for signing in as somebody else —
- * PRM-1 says roles are read-only here — so it is sized down and sits beside
- * the identity rather than looking like a product setting.
- */
-.dm-rolepicker {
-  min-width: 180px;
-}
-
-@media (max-width: 900px) {
-  /* The app bar has no room for it; the Permissions screen still names the
-     acting role, so nothing is lost but the shortcut. */
-  .dm-rolepicker {
-    display: none;
-  }
+  border-top: 1px solid var(--bh-border-hairline);
+  font-size: var(--bh-text-size-body);
+  color: var(--bh-text-secondary);
 }
 
 /* ── Bulk actions ─────────────────────────────────────────────────── */
@@ -254,13 +213,20 @@
  * BLK-6: the bar exists only while a selection does, so it never occupies the
  * layout when it has nothing to say.
  */
+/*
+ * The selection tint, without the 1px ring it had in 4.x — the system dropped
+ * that ring from NavList for competing with the primary action. What holds
+ * 3:1 is the leading bar in `selection-mark`, the same cue NavList, ListView
+ * and the Article contents use; the tint alone is about 1.2:1.
+ */
 .dm-bulk {
   display: flex;
   flex-direction: column;
   gap: var(--bh-gap-normal);
   padding: var(--bh-padding-block);
   background: var(--bh-selection-bg);
-  border: 1px solid var(--bh-selection-mark);
+  border: 1px solid transparent;
+  border-inline-start: 4px solid var(--bh-selection-mark);
   border-radius: var(--bh-radius-surface);
 }
 
@@ -296,20 +262,6 @@
   font-weight: var(--bh-text-weight-emphasis);
 }
 
-/* A table cell that opens a document, matching the ghost button beside it
-   without nesting a system Button inside a cell that already has one. */
-.dm-link-button {
-  padding: 0;
-  background: none;
-  border: 0;
-  color: var(--bh-text-link);
-  font-family: inherit;
-  font-size: var(--bh-text-size-body);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
 /* ── Notes in the interface ───────────────────────────────────────── */
 
 /*
@@ -320,15 +272,21 @@
  * and error, and this is none of the three; `Card`'s own `notFor` says a
  * paragraph is "a border with extra steps" and it is right. The design system
  * has no component for prose that has to stay on screen, which is a finding
- * rather than a reason to bend one — recorded in the system's DS-GAPS.md.
+ * rather than a reason to bend one. It is *not* in the system's DS-GAPS.md
+ * yet, though this comment said so for a version and a half — see
+ * docs/design-system-6-gaps.md, which carries the entry to file.
+ *
+ * Drawn the 6.0 way: a `fill-hover` well, no grey rule. The transparent
+ * border is the system's own forced-colours trick — the fill disappears
+ * there, and the edge is what is left.
  */
 .dm-note {
   display: flex;
   flex-direction: column;
   gap: var(--bh-gap-hairline);
   padding: var(--bh-padding-block) var(--bh-padding-inline);
-  border-left: 2px solid var(--bh-border-strong);
-  background: var(--bh-surface-sunken);
+  border: 1px solid transparent;
+  background: var(--bh-fill-hover);
   border-radius: var(--bh-radius-control);
   font-family: var(--bh-font-family-sans);
 }
@@ -347,10 +305,10 @@
   line-height: var(--bh-text-leading-normal);
 }
 
-/* The withheld count is the one note that reports a restriction, so it takes
-   the selection mark rather than the neutral border. */
+/* The withheld count is the one note that reports a restriction, so it gains
+   the selection mark's leading bar. The title says it; the bar repeats it. */
 .dm-note--withheld {
-  border-left-color: var(--bh-selection-mark);
+  border-inline-start: 4px solid var(--bh-selection-mark);
 }
 
 /* ── Permission rules ─────────────────────────────────────────────── */
@@ -363,7 +321,7 @@
 
 .dm-rule__name {
   color: var(--bh-text-primary);
-  font-weight: 600;
+  font-weight: var(--bh-text-weight-emphasis);
 }
 
 .dm-rule__note {
@@ -485,40 +443,19 @@
 }
 
 .dm-count {
-  font-size: 0.875rem;
-  font-weight: 400;
+  font-size: var(--bh-text-size-caption);
+  font-weight: var(--bh-text-weight-body);
   color: var(--bh-text-muted);
 }
 
+/* Heads a group of controls, so it is set exactly as the system's field
+   label (`.bh-field__label`) — it was tracked capitals, which the system
+   dropped everywhere in 4.10–4.11. */
 .dm-label {
   margin: 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bh-text-muted);
-}
-
-/* Version history and audit trail: a real <ol>, styled as a rail. */
-.dm-trail {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--bh-gap-snug);
-}
-
-.dm-trail__item {
-  padding-inline-start: var(--bh-padding-inline);
-  border-inline-start: 2px solid var(--bh-border-subtle);
-  color: var(--bh-text-secondary);
-  font-size: 0.875rem;
-}
-
-.dm-trail__title {
+  font-size: var(--bh-text-size-body);
+  font-weight: var(--bh-text-weight-emphasis);
   color: var(--bh-text-primary);
-  font-weight: 600;
 }
 
 /* ── Utilities ────────────────────────────────────────────────────── */
@@ -526,4 +463,10 @@
 .dm-grow {
   flex: 1;
   min-width: 0;
+}
+
+/* Used by Permissions and Retention since 4.x, and never defined until now:
+   a role name and its "⚠", a policy and its version, stay on one line. */
+.dm-nowrap {
+  white-space: nowrap;
 }

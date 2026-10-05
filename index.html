@@ -3,11 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>DocuManager</title>
     <meta
       name="description"
       content="A document management prototype built with the BigHat design system."
     />
+    <script>
+      // Applies the reader's theme before the first paint, so a dark choice
+      // does not flash light while the bundle loads. Mirrors src/theme.ts:
+      // same key, same values, and "system" means no attribute at all.
+      (function () {
+        var choice = new URLSearchParams(location.search).get('theme');
+        if (choice !== 'light' && choice !== 'dark') {
+          try {
+            choice = localStorage.getItem('documanager.theme');
+          } catch (e) {
+            choice = null;
+          }
+        }
+        if (choice === 'light' || choice === 'dark') {
+          document.documentElement.setAttribute('data-theme', choice);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,4 +1,4 @@
-import { Badge, StateBlock, Table, type Column } from '@bighat/ui';
+import { Badge, Button, StateBlock, Table, type Column } from '@bighat/ui';
 
 import {
   RETENTION_POLICIES,
@@ -118,10 +118,18 @@ export function Retention({
       header: 'Actions',
       align: 'end',
       width: '120px',
+      // The same named ghost Button as the document library. This was a
+      // hand-styled <button> drawn as a link; it opens a dialog, so it is an
+      // action, and the system already has one.
       cell: (doc) => (
-        <button type="button" className="dm-link-button bh-focusable" onClick={() => onOpenDocument(doc.id)}>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={`Open ${doc.title}`}
+          onClick={() => onOpenDocument(doc.id)}
+        >
           Open
-        </button>
+        </Button>
       ),
     },
   ];

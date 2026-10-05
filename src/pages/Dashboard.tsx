@@ -1,4 +1,4 @@
-import { Badge, Button, Card, StateBlock } from '@bighat/ui';
+import { Badge, Button, List, ListItem, StateBlock } from '@bighat/ui';
 
 import { StatTile } from '../components/StatTile';
 import { CURRENT_USER, statusTone, type ManagedDocument } from '../data/documents';
@@ -59,26 +59,24 @@ export function Dashboard({
             description="Upload an invoice or a production order and it will show up here."
           />
         ) : (
-          <div className="dm-activity">
+          /*
+           * Records with a title, a supporting line and a status — what `List`
+           * is for. It used to be a column of clickable Cards, which drew five
+           * raised surfaces for one list, and whose `ariaLabel` replaced the
+           * row's content — so the status was never announced. `ListItem`
+           * keeps `trailing` outside the button, where it is read on its own.
+           */
+          <List variant="inset" ariaLabel="Recently uploaded documents">
             {recent.map((doc) => (
-              <Card
+              <ListItem
                 key={doc.id}
-                onClick={() => onOpenDocument(doc.id)}
-                ariaLabel={`Open ${doc.title}`}
-                padding="snug"
-              >
-                <span className="dm-activity__row">
-                  <span className="dm-activity__text dm-grow">
-                    <span className="dm-activity__title">{doc.title}</span>
-                    <span className="dm-doccard__meta">
-                      {doc.linkedRecord} • {doc.uploadDate}
-                    </span>
-                  </span>
-                  <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>
-                </span>
-              </Card>
+                title={doc.title}
+                description={`${doc.linkedRecord} • ${doc.uploadDate}`}
+                onSelect={() => onOpenDocument(doc.id)}
+                trailing={<Badge tone={statusTone(doc.status)}>{doc.status}</Badge>}
+              />
             ))}
-          </div>
+          </List>
         )}
       </section>
     </div>

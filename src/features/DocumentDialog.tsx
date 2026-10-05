@@ -5,6 +5,8 @@ import {
   DescriptionList,
   Dialog,
   Input,
+  List,
+  ListItem,
   RemovableChip,
   ScrollArea,
   Select,
@@ -276,8 +278,10 @@ export function DocumentDialog({
                 />
 
                 <div className="dm-stack">
+                  {/* Set like a field label, because it heads the tag controls
+                      below it — sentence case, as the system's labels are. */}
                   <p className="dm-label">
-                    Tags ({doc.tags.length}/{MAX_TAGS})
+                    Tags ({doc.tags.length} of {MAX_TAGS})
                   </p>
 
                   {doc.tags.length > 0 && (
@@ -356,15 +360,17 @@ export function DocumentDialog({
         <TabPanel id="versions">
           <div className="dm-tabbody">
             <ScrollArea ariaLabel="Version history" maxHeight="100%" fade={false}>
-              <ol className="dm-trail">
+              {/* Was a hand-styled <ol>. `List` is the system's record row:
+                  a title and one supporting line, hairlines between. */}
+              <List ariaLabel="Versions, newest first">
                 {[...doc.versions].reverse().map((version) => (
-                  <li className="dm-trail__item" key={version.version}>
-                    <span className="dm-trail__title">Version {version.version}</span>
-                    <br />
-                    {formatDate(version.date)} · {formatSize(version.size)}
-                  </li>
+                  <ListItem
+                    key={version.version}
+                    title={`Version ${version.version}`}
+                    description={`${formatDate(version.date)} · ${formatSize(version.size)}`}
+                  />
                 ))}
-              </ol>
+              </List>
             </ScrollArea>
           </div>
         </TabPanel>
@@ -380,13 +386,11 @@ export function DocumentDialog({
                   description="Uploads, approvals and new versions will appear here."
                 />
               ) : (
-                <ol className="dm-trail">
+                <List ariaLabel="Audit entries, newest first">
                   {doc.auditTrail.map((entry, index) => (
-                    <li className="dm-trail__item" key={`${entry}-${index}`}>
-                      {entry}
-                    </li>
+                    <ListItem key={`${entry}-${index}`} title={entry} />
                   ))}
-                </ol>
+                </List>
               )}
             </ScrollArea>
           </div>

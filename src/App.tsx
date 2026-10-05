@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppBar,
   AppShell,
-  Avatar,
   Button,
   Input,
   Select,
   NavItem,
   NavList,
+  SegmentedControl,
   SidePanel,
   SkipLink,
+  UserProfile,
   useToast,
 } from '@bighat/ui';
 
@@ -29,6 +30,7 @@ import {
   type Filters,
   type ManagedDocument,
 } from './data/documents';
+import { THEME_OPTIONS, isThemeChoice, useTheme } from './theme';
 
 type Page = 'dashboard' | 'documents' | 'permissions' | 'retention';
 
@@ -56,6 +58,7 @@ export function App() {
    * marks which role you are acting as.
    */
   const [role, setRole] = useState('controller');
+  const [theme, setTheme] = useTheme();
   /** Below 900px the shell's panels leave the grid; this is how they come back. */
   const [navOpen, setNavOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
@@ -158,6 +161,11 @@ export function App() {
                  * it is the product's job — there is no leading slot on AppBar,
                  * and a menu button belongs beside the wordmark anyway. Hidden
                  * above 900px, where the sidebar is on screen already.
+                 *
+                 * Always "Menu": since 5.0 the open overlay makes the header
+                 * inert, so this button cannot be reached while the nav is
+                 * open. Escape and the shell's scrim close it, and focus
+                 * returns here.
                  */}
                 <span className="dm-navtoggle">
                   <Button
@@ -166,7 +174,7 @@ export function App() {
                     onClick={() => setNavOpen((open) => !open)}
                     aria-expanded={navOpen}
                   >
-                    {navOpen ? 'Close menu' : 'Menu'}
+                    Menu
                   </Button>
                 </span>
                 <span className="dm-brand__mark" aria-hidden="true">
@@ -195,29 +203,62 @@ export function App() {
               />
             }
             actions={
-              <span className="dm-identity">
-                <span className="dm-rolepicker">
-                  <Select
-                    label="Acting as"
-                    value={role}
-                    options={ROLES.map((r) => ({ value: r.id, label: r.name }))}
-                    onChange={(event) => setRole(event.target.value)}
-                  />
-                </span>
-                <span className="dm-user">
-                {/* `decorative`, because the name is rendered beside it. An
-                    avatar with an accessible name next to the same name spoken
-                    again is the duplicate every audit finds. */}
-                  <Avatar name={CURRENT_USER} size="sm" decorative />
-                  {CURRENT_USER}
-                </span>
-              </span>
+              /*
+               * The system's identity slot. It was a local Avatar-plus-name;
+               * `UserProfile` does the same with the avatar already marked
+               * decorative, and its secondary line is the thing that tells two
+               * sessions apart — here, the role being acted as.
+               */
+              <UserProfile name={CURRENT_USER} secondary={roleById(role)?.name ?? role} />
             }
           />
         }
         sidebar={
           <SidePanel
             ariaLabel="Sections"
+            /*
+             * Session settings live here rather than in the app bar: the panel
+             * is reachable at every width (as an overlay below 900px), and the
+             * footer is the system's slot for account-level controls.
+             *
+             * The role switcher was in the app bar, where its always-visible
+             * label (Select has no `hideLabel`) touched the bar's top edge, and
+             * below 900px it was hidden outright. The role still shows in the
+             * app bar, as the UserProfile's secondary line.
+             */
+            footer={
+              <div className="dm-stack">
+                {/*
+                 * PRM-1 says roles come from the identity provider, so this is
+                 * openly a stand-in for signing in as somebody else — see the
+                 * comment on `role` above.
+                 */}
+                <Select
+                  label="Acting as"
+                  value={role}
+                  options={ROLES.map((r) => ({ value: r.id, label: r.name }))}
+                  onChange={(event) => setRole(event.target.value)}
+                />
+                {/*
+                 * Three visible options that take effect at once — a
+                 * SegmentedControl, not a Switch, because "follow the OS" is a
+                 * real third answer.
+                 */}
+                <SegmentedControl
+                  legend="Theme"
+                  showLegend
+                  options={THEME_OPTIONS}
+                  value={theme}
+                  // SegmentedControl reports a plain string; narrowed, not cast,
+                  // so a typo in THEME_OPTIONS cannot reach data-theme.
+                  onChange={(next) => {
+                    if (isThemeChoice(next)) setTheme(next);
+                  }}
+                  size="sm"
+                  fullWidth
+                />
+              </div>
+            }
             header={
               /*
                * `upload` is not a document-scoped question — there is no

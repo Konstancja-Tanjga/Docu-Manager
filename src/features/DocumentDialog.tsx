@@ -5,6 +5,8 @@ import {
   DescriptionList,
   Dialog,
   Input,
+  List,
+  ListItem,
   RemovableChip,
   ScrollArea,
   Select,
@@ -18,7 +20,7 @@ import {
 } from '@bighat/ui';
 
 import { can, denyingRule, roleById } from '../data/permissions';
-import { RetentionSummary } from '../pages/Retention';
+import { retentionItems } from '../pages/Retention';
 import {
   DOCUMENT_TYPES,
   MAX_TAGS,
@@ -135,8 +137,14 @@ export function DocumentDialog({
         </TabList>
 
         <TabPanel id="info">
-          <div className="dm-tabbody">
-            <ScrollArea ariaLabel="Document information" maxHeight="100%" fade={false}>
+          {/*
+            Info gained rows — a type, retention, and what this role may do —
+            so it outgrew the box and pushed its only action out of sight. Same
+            answer as Edit: the facts scroll, the action is pinned.
+          */}
+          <div className="dm-tabbody dm-tabbody--form">
+            <div className="dm-tabbody__scroll">
+              <ScrollArea ariaLabel="Document information" maxHeight="100%" fade={false}>
               <div className="dm-stack">
                 {/*
                  * `DescriptionList` is the system's term/value pair, so the three
@@ -186,6 +194,7 @@ export function DocumentDialog({
                       value: doc.description || 'No description yet. Add one from the Edit tab.',
                       wide: true,
                     },
+                    ...retentionItems(doc),
                     {
                       term: 'Your access',
                       // Colour is never the carrier here: the sentence is.
@@ -197,20 +206,16 @@ export function DocumentDialog({
                   ]}
                 />
 
-                {/*
-                  RET-10: a document under retention says so in place, with the
-                  date and the policy — not on a separate screen a reader has
-                  to know exists.
-                */}
-                <RetentionSummary doc={doc} />
 
-                <div className="dm-row">
-                  <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
-                    Upload new version
-                  </Button>
                 </div>
-              </div>
-            </ScrollArea>
+              </ScrollArea>
+            </div>
+
+            <div className="dm-tabbody__actions">
+              <Button variant="secondary" onClick={() => onUploadNewVersion(doc.id)}>
+                Upload new version
+              </Button>
+            </div>
           </div>
         </TabPanel>
 
@@ -273,8 +278,10 @@ export function DocumentDialog({
                 />
 
                 <div className="dm-stack">
+                  {/* Set like a field label, because it heads the tag controls
+                      below it — sentence case, as the system's labels are. */}
                   <p className="dm-label">
-                    Tags ({doc.tags.length}/{MAX_TAGS})
+                    Tags ({doc.tags.length} of {MAX_TAGS})
                   </p>
 
                   {doc.tags.length > 0 && (
@@ -353,15 +360,17 @@ export function DocumentDialog({
         <TabPanel id="versions">
           <div className="dm-tabbody">
             <ScrollArea ariaLabel="Version history" maxHeight="100%" fade={false}>
-              <ol className="dm-trail">
+              {/* `List` renders <ul>, so the order is carried by the label —
+                  see gap 6 in docs/design-system-6-gaps.md. */}
+              <List ariaLabel="Versions, newest first">
                 {[...doc.versions].reverse().map((version) => (
-                  <li className="dm-trail__item" key={version.version}>
-                    <span className="dm-trail__title">Version {version.version}</span>
-                    <br />
-                    {formatDate(version.date)} · {formatSize(version.size)}
-                  </li>
+                  <ListItem
+                    key={version.version}
+                    title={`Version ${version.version}`}
+                    description={`${formatDate(version.date)} · ${formatSize(version.size)}`}
+                  />
                 ))}
-              </ol>
+              </List>
             </ScrollArea>
           </div>
         </TabPanel>
@@ -377,13 +386,15 @@ export function DocumentDialog({
                   description="Uploads, approvals and new versions will appear here."
                 />
               ) : (
-                <ol className="dm-trail">
-                  {doc.auditTrail.map((entry, index) => (
-                    <li className="dm-trail__item" key={`${entry}-${index}`}>
-                      {entry}
-                    </li>
+                <List ariaLabel="Audit entries, newest first">
+                  {/* The seed trails are oldest first and new entries are
+                      prepended, so the stored order is neither. Every entry
+                      starts with a "YYYY-MM-DD HH:MM" stamp, which sorts as
+                      text. */}
+                  {[...doc.auditTrail].sort((a, b) => b.localeCompare(a)).map((entry, index) => (
+                    <ListItem key={`${entry}-${index}`} title={entry} />
                   ))}
-                </ol>
+                </List>
               )}
             </ScrollArea>
           </div>

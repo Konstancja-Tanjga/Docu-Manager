@@ -46,6 +46,64 @@ because the prototype currently lets her do things her role should not permit.
 
 ---
 
+## The screens behind each phase
+
+One per phase, in the order the blueprint reads. `P6` is two, because what the
+export *refuses* is as much the design as what it produces.
+
+### `P1` · arrive
+
+![The dashboard: four counts and the five most recent documents](screens/dashboard-1400.png)
+
+### `P2` · find
+
+![The document library as a table, with type and retention filters and a retention column](screens/documents-list-retention.png)
+
+Retention is a column and a filter here, like any other attribute — the state
+is computed rather than stored, so it filters on the computed value.
+
+![The same library seen by the external auditor: seven documents, with a notice that three are withheld](screens/permissions-withheld.png)
+
+The same library, seen by the external auditor. Seven documents and a notice
+that three are withheld — because one deny rule removes read for one
+classification, and a list that silently shrank would read as documents having
+gone missing.
+
+### `P3` · inspect
+
+![The document dialog on the Info tab, showing status, type, retention and a pinned Upload new version action](screens/t-info.png)
+
+![A document on legal hold: the label reads "would expire" and keeps the computed date](screens/detail-legal-hold.png)
+
+A document on legal hold. The label changes to *would expire* and the date
+stays exactly where the policy put it — a hold suspends the effect, never the
+calculation.
+
+### `P4` · bring in
+
+![The upload dialog with its limits stated in advance and a real file input](screens/upload-dark.png)
+
+### `P5` · decide
+
+![The Info tab with both approve actions disabled and a line reading: no rule grants Document controller approve on this document](screens/detail-refusal-named.png)
+
+This is the phase that used to have a screen and no authority. Both actions are
+refused, and the refusal says which rule refused — *no rule grants Document
+controller approve on this document*. An interface that says "you cannot"
+without saying why produces a support ticket.
+
+### `P6` · hand off
+
+![The retention screen with four versioned policies, their states, periods and start events](screens/retention-policies.png)
+
+![The bulk bar with ten documents selected, the export stating nine documents and 21.9 MB, one exclusion named, and a per-document list of refusals](screens/bulk-per-item-results.png)
+
+Ten documents selected, nine exportable, 21.9 MB — stated **before** the
+request. The tenth is named, with its reason: under legal hold, and this role
+is not entitled to override it.
+
+---
+
 ## The two phases with nothing behind them
 
 `P5` and `P6` are where the blueprint stops describing the prototype and starts

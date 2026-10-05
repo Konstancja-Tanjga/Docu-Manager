@@ -1,4 +1,4 @@
-import { Badge, Button, Card, StateBlock } from '@bighat/ui';
+import { Badge, Button, List, ListItem, StateBlock } from '@bighat/ui';
 
 import { StatTile } from '../components/StatTile';
 import { CURRENT_USER, statusTone, type ManagedDocument } from '../data/documents';
@@ -59,26 +59,22 @@ export function Dashboard({
             description="Upload an invoice or a production order and it will show up here."
           />
         ) : (
-          <div className="dm-activity">
+          /*
+           * Records with a title, a supporting line and a status — what `List`
+           * is for. `trailing` sits outside the row's button, so the status is
+           * read on its own rather than lost in, or replacing, the row's name.
+           */
+          <List variant="inset" ariaLabel="Recently uploaded documents">
             {recent.map((doc) => (
-              <Card
+              <ListItem
                 key={doc.id}
-                onClick={() => onOpenDocument(doc.id)}
-                ariaLabel={`Open ${doc.title}`}
-                padding="snug"
-              >
-                <span className="dm-activity__row">
-                  <span className="dm-activity__text dm-grow">
-                    <span className="dm-activity__title">{doc.title}</span>
-                    <span className="dm-doccard__meta">
-                      {doc.linkedRecord} • {doc.uploadDate}
-                    </span>
-                  </span>
-                  <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>
-                </span>
-              </Card>
+                title={doc.title}
+                description={`${doc.linkedRecord} • ${doc.uploadDate}`}
+                onSelect={() => onOpenDocument(doc.id)}
+                trailing={<Badge tone={statusTone(doc.status)}>{doc.status}</Badge>}
+              />
             ))}
-          </div>
+          </List>
         )}
       </section>
     </div>

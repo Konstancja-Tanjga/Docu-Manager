@@ -187,7 +187,7 @@ export function Documents({
         <Button
           variant="ghost"
           size="sm"
-          // Forty buttons called "Open" are one button to a screen reader's
+          // A button called "Open" in every row is one button to a screen reader's
           // list of controls. The visible word stays; the name carries the row,
           // the way the system's own row-actions trigger does since 6.0.
           aria-label={`Open ${doc.title}`}

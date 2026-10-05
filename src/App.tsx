@@ -30,7 +30,7 @@ import {
   type Filters,
   type ManagedDocument,
 } from './data/documents';
-import { THEME_OPTIONS, useTheme, type ThemeChoice } from './theme';
+import { THEME_OPTIONS, isThemeChoice, useTheme } from './theme';
 
 type Page = 'dashboard' | 'documents' | 'permissions' | 'retention';
 
@@ -219,7 +219,7 @@ export function App() {
             /*
              * Session settings live here rather than in the app bar: the panel
              * is reachable at every width (as an overlay below 900px), and the
-             * footer is the slot the system names for them.
+             * footer is the system's slot for account-level controls.
              *
              * The role switcher was in the app bar, where its always-visible
              * label (Select has no `hideLabel`) touched the bar's top edge, and
@@ -249,7 +249,11 @@ export function App() {
                   showLegend
                   options={THEME_OPTIONS}
                   value={theme}
-                  onChange={(next) => setTheme(next as ThemeChoice)}
+                  // SegmentedControl reports a plain string; narrowed, not cast,
+                  // so a typo in THEME_OPTIONS cannot reach data-theme.
+                  onChange={(next) => {
+                    if (isThemeChoice(next)) setTheme(next);
+                  }}
                   size="sm"
                   fullWidth
                 />

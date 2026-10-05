@@ -69,13 +69,13 @@ What the system still lacks for this product is in
   in development; it is removed in 5.0. Same for `tone="default"`, which is now
   `tone="neutral"` — and since that is the default value, usually just delete
   the prop.
-- **No `className` on a system component.** Not on any of the 45. Wrap it in a
+- **No `className` on a system component.** Not on any of the 46. Wrap it in a
   `dm-*` element if the layout needs one, and put the rule in `app.css`.
 - **No font-size or weight literals either.** `--bh-text-size-*` and
   `--bh-text-weight-*`. Headings are `title` (page) and `heading` (section).
 - **Sentence case, hairlines, `fill-hover` wells.** No tracked capitals and no
-  grey 1px boxes. That is the 6.0 look, and the system's own components
-  already follow it.
+  grey 1px boxes. That is the look the system moved to across 4.2–4.13, and
+  its own components already follow it.
 - **No colour literals in `app.css`.** If no semantic token fits, that is a
   missing role in the design system. Say so and stop — do not reach for a hex.
   A selected or current thing is `--bh-selection-*`, not `--bh-status-info-*`.

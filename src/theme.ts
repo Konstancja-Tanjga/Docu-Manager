@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Light, dark, or whatever the operating system says.
@@ -23,14 +23,16 @@ export const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
 
 const STORAGE_KEY = 'documanager.theme';
 
-function isThemeChoice(value: unknown): value is ThemeChoice {
+export function isThemeChoice(value: unknown): value is ThemeChoice {
   return value === 'system' || value === 'light' || value === 'dark';
 }
 
 /**
  * `?theme=dark` wins over the stored choice and is not stored. It exists so a
  * screenshot run can ask for a theme without touching the reader's setting —
- * see `themes` in `.claude/handoff.json`.
+ * see `themes` in `.claude/handoff.json`. Only until the reader picks one
+ * themselves: a choice made on screen is a real choice, and is stored even
+ * while the query is still in the URL.
  */
 function fromQuery(): ThemeChoice | null {
   const value = new URLSearchParams(window.location.search).get('theme');
@@ -54,18 +56,23 @@ function apply(choice: ThemeChoice) {
 }
 
 export function useTheme() {
-  const [fromUrl] = useState(fromQuery);
-  const [theme, setTheme] = useState<ThemeChoice>(() => fromUrl ?? readStored());
+  const [overridden, setOverridden] = useState(() => fromQuery() !== null);
+  const [theme, setTheme] = useState<ThemeChoice>(() => fromQuery() ?? readStored());
 
   useEffect(() => {
     apply(theme);
-    if (fromUrl) return;
+    if (overridden) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, theme);
     } catch {
       // See readStored: losing the preference on reload is acceptable.
     }
-  }, [theme, fromUrl]);
+  }, [theme, overridden]);
 
-  return [theme, setTheme] as const;
+  const choose = useCallback((next: ThemeChoice) => {
+    setOverridden(false);
+    setTheme(next);
+  }, []);
+
+  return [theme, choose] as const;
 }

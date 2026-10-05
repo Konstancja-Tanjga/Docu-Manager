@@ -15,7 +15,9 @@
       // same key, same values, and "system" means no attribute at all.
       (function () {
         var choice = new URLSearchParams(location.search).get('theme');
-        if (choice !== 'light' && choice !== 'dark') {
+        // A query value of "system" is an override too: no attribute, and
+        // storage is not consulted.
+        if (choice !== 'light' && choice !== 'dark' && choice !== 'system') {
           try {
             choice = localStorage.getItem('documanager.theme');
           } catch (e) {

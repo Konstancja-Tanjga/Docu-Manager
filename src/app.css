@@ -14,7 +14,7 @@
  * should be.
  *
  * Rebuilt for @bighat/ui 6. The system moved from 1px grey boxes to height,
- * hairlines and translucent fills (4.2–4.11), and from tracked capitals to
+ * hairlines and translucent fills (4.2–4.13), and from tracked capitals to
  * sentence case. This file follows: lines are `border-hairline`, wells are
  * `fill-hover`, and every font size and weight is a token — the 4.x version
  * still had eleven rem literals, which rule 2 never allowed.
@@ -25,7 +25,8 @@
  */
 
 /* The shell fills the viewport, so the body's default margin would show the
-   page behind it as a frame — white, in dark mode. */
+   browser's canvas around it as a frame, which matches `surface-sunken` in
+   neither theme. */
 body {
   margin: 0;
   background: var(--bh-surface-sunken);
@@ -130,8 +131,8 @@ body {
   color: var(--bh-text-secondary);
 }
 
-/* The largest step on the scale. It was 2.5rem, off the scale; a count the
-   reader has to read is never set smaller than body, and title is the top. */
+/* 2.5rem was off the scale. `title` (26px) is the largest step — larger than
+   `display` (20px), whatever the names suggest. */
 .dm-stat__value {
   margin: var(--bh-gap-tight) 0 0;
   font-size: var(--bh-text-size-title);
@@ -212,12 +213,12 @@ body {
 /*
  * BLK-6: the bar exists only while a selection does, so it never occupies the
  * layout when it has nothing to say.
- */
-/*
- * The selection tint, without the 1px ring it had in 4.x — the system dropped
+ *
+ * The selection tint, without the 1px ring it had before — the system dropped
  * that ring from NavList for competing with the primary action. What holds
- * 3:1 is the leading bar in `selection-mark`, the same cue NavList, ListView
- * and the Article contents use; the tint alone is about 1.2:1.
+ * 3:1 is the leading bar in `selection-mark`, the cue NavList, ListView and
+ * the Article contents use, drawn heavier here (4px, theirs is 2px) because
+ * it marks a whole panel rather than one row; the tint alone is about 1.2:1.
  */
 .dm-bulk {
   display: flex;
@@ -273,10 +274,9 @@ body {
  * paragraph is "a border with extra steps" and it is right. The design system
  * has no component for prose that has to stay on screen, which is a finding
  * rather than a reason to bend one. It is *not* in the system's DS-GAPS.md
- * yet, though this comment said so for a version and a half — see
- * docs/design-system-6-gaps.md, which carries the entry to file.
+ * yet — docs/design-system-6-gaps.md carries the entry to file.
  *
- * Drawn the 6.0 way: a `fill-hover` well, no grey rule. The transparent
+ * Drawn as the system draws wells: `fill-hover`, no grey rule. The transparent
  * border is the system's own forced-colours trick — the fill disappears
  * there, and the edge is what is left.
  */
@@ -305,8 +305,8 @@ body {
   line-height: var(--bh-text-leading-normal);
 }
 
-/* The withheld count is the one note that reports a restriction, so it gains
-   the selection mark's leading bar. The title says it; the bar repeats it. */
+/* For the two notes about documents left out of what the reader sees or
+   exports (XC-1, BDL-4). The title says it; the bar repeats it. */
 .dm-note--withheld {
   border-inline-start: 4px solid var(--bh-selection-mark);
 }
@@ -450,7 +450,7 @@ body {
 
 /* Heads a group of controls, so it is set exactly as the system's field
    label (`.bh-field__label`) — it was tracked capitals, which the system
-   dropped everywhere in 4.10–4.11. */
+   dropped across 4.10–4.12. */
 .dm-label {
   margin: 0;
   font-size: var(--bh-text-size-body);
@@ -465,7 +465,7 @@ body {
   min-width: 0;
 }
 
-/* Used by Permissions and Retention since 4.x, and never defined until now:
+/* Dropped in the 4.x move while Permissions and Retention still used it:
    a role name and its "⚠", a policy and its version, stay on one line. */
 .dm-nowrap {
   white-space: nowrap;

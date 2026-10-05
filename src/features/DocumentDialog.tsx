@@ -360,8 +360,8 @@ export function DocumentDialog({
         <TabPanel id="versions">
           <div className="dm-tabbody">
             <ScrollArea ariaLabel="Version history" maxHeight="100%" fade={false}>
-              {/* Was a hand-styled <ol>. `List` is the system's record row:
-                  a title and one supporting line, hairlines between. */}
+              {/* `List` renders <ul>, so the order is carried by the label —
+                  see gap 6 in docs/design-system-6-gaps.md. */}
               <List ariaLabel="Versions, newest first">
                 {[...doc.versions].reverse().map((version) => (
                   <ListItem
@@ -387,7 +387,11 @@ export function DocumentDialog({
                 />
               ) : (
                 <List ariaLabel="Audit entries, newest first">
-                  {doc.auditTrail.map((entry, index) => (
+                  {/* The seed trails are oldest first and new entries are
+                      prepended, so the stored order is neither. Every entry
+                      starts with a "YYYY-MM-DD HH:MM" stamp, which sorts as
+                      text. */}
+                  {[...doc.auditTrail].sort((a, b) => b.localeCompare(a)).map((entry, index) => (
                     <ListItem key={`${entry}-${index}`} title={entry} />
                   ))}
                 </List>

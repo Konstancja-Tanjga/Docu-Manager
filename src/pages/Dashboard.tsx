@@ -61,10 +61,8 @@ export function Dashboard({
         ) : (
           /*
            * Records with a title, a supporting line and a status — what `List`
-           * is for. It used to be a column of clickable Cards, which drew five
-           * raised surfaces for one list, and whose `ariaLabel` replaced the
-           * row's content — so the status was never announced. `ListItem`
-           * keeps `trailing` outside the button, where it is read on its own.
+           * is for. `trailing` sits outside the row's button, so the status is
+           * read on its own rather than lost in, or replacing, the row's name.
            */
           <List variant="inset" ariaLabel="Recently uploaded documents">
             {recent.map((doc) => (

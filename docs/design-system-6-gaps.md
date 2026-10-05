@@ -3,8 +3,8 @@
 Built by moving DocuManager from `@bighat/ui` 4.1.0 (the
 `chip-textarea-filedropzone` branch) to 6.0.3 (`main` at `9c26ecb`), and adding
 a light / dark / system theme. Each entry says what the product reached for,
-what it built instead, and what that costs. That is the format the system's own
-`DS-GAPS.md` uses, so entries can be copied there.
+what it built instead, and what that costs — the argument the system's own
+`DS-GAPS.md` asks for. Entries 1–5 follow its shape; 6–8 are short notes.
 
 ## Summary
 
@@ -43,8 +43,8 @@ product can reach for without inventing a role are `fill.hover` and
 way `Badge` does, and test the contrast in both themes. The local version is
 checked by nobody.
 
-**Correction:** the 4.x README and the `.dm-note` comment both said this was
-recorded in the system's `DS-GAPS.md`. It was not. This entry is the one to
+**Correction:** the `.dm-note` comment in `app.css` said this was recorded in
+the system's `DS-GAPS.md`. It was not. This entry is the one to
 file.
 
 **Proposal:** `Callout` — `tone` (`neutral | info | warning | critical`),
@@ -111,7 +111,7 @@ failed. BLK-12 requires every failed document to be named, with its reason.
 the content the requirement is about.
 
 **What it does worse:** the list sits outside the error's live region, so
-assistive technology announces "3 of 8 did not change" without the eight
+assistive technology announces "3 of 8 did not change" without the three
 names.
 
 **Proposal:** a `details` slot (block content, visible, inside the region), or
@@ -137,15 +137,16 @@ wrapping below a container width.
 ## 6. `List` has no ordered form
 
 Version history and the audit trail are ordered: newest first, and the order
-is the point. `List` always renders `<ul>`. The rebuild uses it anyway, and the
-order is in the `ariaLabel` ("Versions, newest first"). An `ordered` prop that
+is the point. `List` always renders `<ul>`. The rebuild uses it anyway, sorts
+both newest first, and states the order in the `ariaLabel` ("Versions, newest
+first", "Audit entries, newest first"). An `ordered` prop that
 renders `<ol>` would be enough.
 
 ## 7. `Select` still has no `hideLabel`
 
 This was already noted for 4.x. In 6.0 it has a visible cost: the "Acting as"
-label in the app bar touched the bar's top edge, because the bar is
-`control.md` tall and a labelled field is taller. The rebuild moves the
+label in the app bar touched the bar's top edge, because the bar is 56px tall
+and a labelled Select is about 58px (a label line plus `control.md`). The rebuild moves the
 switcher to the side panel footer, which is a better place for it anyway (it
 is now reachable below 900px too). The difference from `Input` still needs a
 written decision.
@@ -167,3 +168,4 @@ preview, which is the case DocuManager actually hits.
 | `<button class="dm-link-button">` in Retention | `Button variant="ghost"` | It opens a dialog, so it is an action |
 | Eleven rem font sizes in `app.css` | `--bh-text-size-*` and `--bh-text-weight-*` | Rule 2 |
 | Grey 1–2px rules, `surface.sunken` wells, tracked capitals | `border.hairline`, `fill.hover`, sentence case | The 4.2–4.13 visual direction |
+| Audit trail in stored order (mixed) | Sorted newest first | The seed data is oldest first and new entries are prepended |

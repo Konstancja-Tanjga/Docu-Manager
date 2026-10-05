@@ -118,9 +118,8 @@ export function Retention({
       header: 'Actions',
       align: 'end',
       width: '120px',
-      // The same named ghost Button as the document library. This was a
-      // hand-styled <button> drawn as a link; it opens a dialog, so it is an
-      // action, and the system already has one.
+      // The same named ghost Button as the document library: it opens a
+      // dialog, so it is an action, not a link.
       cell: (doc) => (
         <Button
           variant="ghost"

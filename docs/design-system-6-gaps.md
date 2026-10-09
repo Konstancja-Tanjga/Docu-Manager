@@ -17,7 +17,8 @@ what it built instead, and what that costs — the argument the system's own
 | 5 | **Page header** | All four pages: title, count, page controls | `.dm-page__header`, `.dm-page__title`, `.dm-count` | Medium |
 | 6 | **Ordered `List`** | Version history, audit trail | `List`, which renders `<ul>` — the order is lost | Low |
 | 7 | **`Select` `hideLabel`** | "Acting as" role switcher in the app bar | Moved to the side panel footer instead | Low |
-| 8 | **Document thumbnail / file preview** | Grid cards | `.dm-doccard__thumb`, a tinted box with the type's name | Low |
+| 8 | **Document thumbnail / file preview** | Grid cards | `.dm-doccard__thumb`: a tinted well with the type's glyph and name | Low |
+| 9 | **Category colour role** | One hue per document type | Nothing — the type glyphs stay neutral | Low |
 
 Not gaps: `StatTile` is still a local composition of `Card`, and stays local
 until a second product wants it. `Tree` (for dossier hierarchies) is already a
@@ -153,10 +154,29 @@ written decision.
 
 ## 8. No file thumbnail
 
-The grid cards show a tinted box with "Invoice" or "Order" where a preview
-would go. This relates to `Frame` (gap 4 in `DS-GAPS.md`): an aspect-locked
+The grid cards show a tinted well with the document type's glyph and name
+where a preview would go. This relates to `Frame` (gap 4 in `DS-GAPS.md`): an aspect-locked
 frame with a fit setting. It also needs a fallback for files that have no
 preview, which is the case DocuManager actually hits.
+
+## 9. No role for category colour
+
+**Reached for:** a hue per document type, so an invoice and a production order
+can be told apart across a grid at a glance.
+
+**What exists:** `status.*`, which means something about state, so an invoice
+in green would read as "approved"; and `avatar.{violet,teal,plum,olive}`, four
+non-status hues already held to 4.5:1 in both themes, which are exactly the
+right values but belong to the avatar role. Borrowing them would be rule 1's
+"reach for whatever fits" by another name.
+
+**Built instead:** nothing. The glyphs are `text-primary` on a neutral tile,
+and the two types are told apart by silhouette. That is enough at two types
+and will not be at six.
+
+**Proposal:** promote the avatar hues to a general `category.{1..n}.{bg,fg}`
+role, with `avatar.*` pointing at it — the values and the contrast tests
+already exist.
 
 ## What the upgrade replaced with system components
 

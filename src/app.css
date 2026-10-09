@@ -163,14 +163,50 @@ body {
 /* A well of `fill-hover`, like the system's Toolbar and SegmentedControl
    track, instead of the opaque sunken surface: it reads in both themes, and
    on a raised card in dark mode `surface-sunken` was darker than the card. */
+/* Two large controls tall: room for the tile and its breathing space, and no
+   more. It was 120px, sized for a preview that does not exist, which on a
+   phone left one card per screen. */
 .dm-doccard__thumb {
   display: grid;
   place-items: center;
-  height: 120px;
+  height: calc(var(--bh-control-lg) * 2);
   border-radius: var(--bh-radius-field);
   background: var(--bh-fill-hover);
+}
+
+/* The document type: a glyph on a raised tile, and its name beside it. */
+.dm-doctype {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bh-gap-snug);
+}
+
+/*
+ * The tile is the one object in the well, so it is drawn the way the system
+ * draws a secondary Button or a chip at rest: `material-regular` with its lit
+ * `material-rim` and `elevation-control`. An opaque `surface-raised` was tried
+ * first and read as a hole in dark mode — the same colour as the card, so
+ * darker than the tinted well around it. The glass lifts in both themes. The
+ * glyph is `text-primary`: neutral, because the system has no role for
+ * category colour (gap 9 in docs/design-system-6-gaps.md), and the silhouette
+ * is what tells the two types apart.
+ */
+.dm-doctype__icon {
+  display: grid;
+  place-items: center;
+  width: var(--bh-control-lg);
+  height: var(--bh-control-lg);
+  border: 1px solid transparent;
+  border-radius: var(--bh-radius-control);
+  background: var(--bh-material-regular-bg);
+  box-shadow: var(--bh-material-rim), var(--bh-elevation-control);
+  color: var(--bh-text-primary);
+}
+
+.dm-doctype__name {
+  font-size: var(--bh-text-size-caption);
+  font-weight: var(--bh-text-weight-emphasis);
   color: var(--bh-text-secondary);
-  font-size: var(--bh-text-size-body);
 }
 
 .dm-doccard__title {

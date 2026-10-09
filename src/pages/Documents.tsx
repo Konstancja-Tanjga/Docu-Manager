@@ -12,6 +12,7 @@ import {
   type Column,
 } from '@bighat/ui';
 
+import { DocumentTypeIcon } from '../components/DocumentTypeIcon';
 import { BulkBar } from '../features/BulkBar';
 import { partitionByRead, roleById } from '../data/permissions';
 import { RETENTION_STATES, retentionOf } from '../data/retention';
@@ -74,6 +75,18 @@ const SORT_OPTIONS = SORT_KEYS.flatMap((key) =>
     (direction) => ({ value: `${key}:${direction}`, label: SORT_LABELS[key][direction] }),
   ),
 );
+
+/**
+ * The linked record without its type, for the grid card, where the type is
+ * already beside its glyph — "#PO-48045", not "Production Order #PO-48045"
+ * under a "Production Order" tile. Only an exact prefix is dropped: a record
+ * that names a different type (a document retyped after linking) or none
+ * ("Not linked yet") is shown whole, because then the words are information.
+ */
+function recordWithoutType(doc: ManagedDocument): string {
+  const prefix = `${doc.type} `;
+  return doc.linkedRecord.startsWith(prefix) ? doc.linkedRecord.slice(prefix.length) : doc.linkedRecord;
+}
 
 /** The design system's `Table` reports `key` as a plain string. */
 function isSortKey(key: string): key is SortKey {
@@ -461,7 +474,9 @@ export function Documents({
             <Card
               key={doc.id}
               onClick={() => onOpenDocument(doc.id)}
-              ariaLabel={`Open ${doc.title}`}
+              // The label replaces the card's content as its name, so the facts a
+              // reader scans the grid for — type and status — have to be in it.
+              ariaLabel={`Open ${doc.title}, ${doc.type}, ${doc.status}`}
               elevation="raised"
             >
               {/*
@@ -469,11 +484,21 @@ export function Documents({
                * be phrasing content — spans, not paragraphs.
                */}
               <span className="dm-doccard">
+                {/*
+                 * The type, as a glyph and its name. Hidden from assistive
+                 * technology because the card's `ariaLabel` names the card;
+                 * the type is in that name instead (see `ariaLabel` above).
+                 */}
                 <span className="dm-doccard__thumb" aria-hidden="true">
-                  {doc.type === 'Invoice' ? 'Invoice' : 'Order'}
+                  <span className="dm-doctype">
+                    <span className="dm-doctype__icon">
+                      <DocumentTypeIcon type={doc.type} />
+                    </span>
+                    <span className="dm-doctype__name">{doc.type}</span>
+                  </span>
                 </span>
                 <span className="dm-doccard__title">{doc.title}</span>
-                <span className="dm-doccard__meta">{doc.linkedRecord}</span>
+                <span className="dm-doccard__meta">{recordWithoutType(doc)}</span>
                 <span className="dm-doccard__footer">
                   <span>{formatDate(doc.uploadDate)}</span>
                   <Badge tone={statusTone(doc.status)}>{doc.status}</Badge>

@@ -107,6 +107,7 @@ rule is generalised in [`FLT-8`](requirements/filter.md).
 | Section navigation | `SidePanel` + `NavList` / `NavItem` |
 | Filter and view controls | `Toolbar` + `Select` + `SegmentedControl` |
 | Dashboard stat tiles | `Card` (via local `StatTile`) |
+| Document type on grid cards | local `DocumentTypeIcon` glyphs — icon sets are a product decision in this system |
 | Recent activity rows | `List` (inset) + `ListItem` + `Badge` |
 | Document cards | `Card` + `Badge` |
 | Document table, sorting | `Table` |
@@ -233,7 +234,7 @@ changed is the look and what the system now covers:
   the app bar its label touched the bar's edge, and below 900px it was hidden.
 
 **What is still missing** is listed in
-[docs/design-system-6-gaps.md](docs/design-system-6-gaps.md): eight items, the
+[docs/design-system-6-gaps.md](docs/design-system-6-gaps.md): nine items, the
 largest being a callout component (`.dm-note` appears in five places) and
 theme switching. That file also corrects one claim made in 4.x: `.dm-note` was
 never recorded in the system's `DS-GAPS.md`, though a comment said it was.
